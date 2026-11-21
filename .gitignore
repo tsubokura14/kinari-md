@@ -11,6 +11,14 @@ dist/
 build/
 coverage/
 
+# Next.js（見本のページ sample/）
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+.vercel
+npm-debug.log*
+
 # OS・エディタ
 .DS_Store
 Thumbs.db
