@@ -15,7 +15,9 @@ kinari-md が決めるのは、本文（変換した Markdown）の見た目だ�
 
 ## トークン
 
-- トークンファイル：<!-- 立ち上げの土台づくり（/dev-build）で決める。立ち上げのあいだは docs/tokens.css に仮置き -->
+- トークンファイル
+  - `src/styles/tokens.css`（入口 `kinari-md/tokens.css`）：kinari-md が持つ Markdown の色（ライト・ダーク）と表の列の幅。アプリに入る
+  - `sample/app/tokens.css`：見本のページだけが使う、アプリが持つものの代わり。アプリに入らない
 - トークンは2つに分かれる
   - **アプリが持つもの**：地・面・文字・枠・差し色・意味の色・書体・文字の大きさの段階・角丸・余白。名前はシリーズで共通にし、kinari-md は名前で読むだけで値を持たない
   - **kinari-md が持つもの（Markdown の色）**：code-bg・code-line・code-keyword・code-string・code-comment・callout-abstract・callout-important・callout-caution。ライトとダークの2組で持つ

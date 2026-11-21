@@ -156,6 +156,7 @@ decisions スキルの「AIが決めてよいもの」で、AIが選んだもの
 - 画像の幅：スマホの 390×844 で撮る（md-leaf と同じ）。PC の幅は #2 で中身と一緒に足す
 - `package.json` は `"private": true`、版は v0.1.0 のタグを打つまで `0.0.0`。理由：npm に公開しない（`docs/overview.md`）ので、誤って `npm publish` しても止まるようにする。`private` は GitHub のタグで入れるのには影響しない。比べた案：`private` を付けない（公開の操作を止めるものがない）
 - 型チェックは一番上の `tsconfig.json` 1つで `src/` と `sample/` をまとめて行い、`sample/tsconfig.json` はそれを `extends` するだけにする。理由：Next.js は見本のフォルダの `tsconfig.json` を読み、なければ作るため要るが、設定を2か所に書かずに済む。比べた案：`sample/` だけの設定を別に持つ（strict などが2か所に分かれる）
+- Tailwind のクラスを Lint で確かめるのに eslint-plugin-better-tailwindcss を md-leaf と同じ版（4.11.0、MIT）で入れ、`src/`・`sample/` の TS・TSX に、Tailwind にないクラスと任意の値のクラスを見つける規則をかける。理由：md-leaf と同じ規則で、任意の値のクラス（`p-[13px]`）を見つけられる。比べた案：`no-restricted-syntax` の正規表現だけで見つける（クラスの書き方の揺れを拾いきれず、Tailwind にないクラスは見つけられない）
 
 ## 確かめ方
 

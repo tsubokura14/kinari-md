@@ -14,8 +14,10 @@ AGENTS.md と CLAUDE.md はテンプレートのものなので、このプロ�
   - `package.json` に `prepare` などのスクリプトを置かない（GitHub から入れるときに npm が実行するため）
 - 見本のページ：`sample/` の Next.js 16（App Router）＋ React 19。パッケージには入らない。アプリと同じく `kinari-md/markdown` をパッケージの名前で読み込み（`exports` の自分自身の参照）、`transpilePackages` でビルドする（`sample/next.config.ts`）
   - 型チェックは一番上の `tsconfig.json` でまとめて行う。`sample/tsconfig.json` はそれを `extends` するだけ（Next.js が見本のフォルダで読むため）
+- トークン：`src/styles/tokens.css`（入口 `kinari-md/tokens.css`。Markdown の色と表の列の幅）と、見本だけの `sample/app/tokens.css`。値はこの2つにだけ書く（`docs/design.md`）
+- 見た目（見本のページ）：Tailwind CSS 4.3.3（`@tailwindcss/turbopack`。`sample/app/globals.css`）
 - テスト：Vitest 5（`src/`・`scripts/`・`.claude/hooks/` の `*.test.ts`・`*.test.mjs` を Node で動かす。`vitest.config.mts`）
-- Lint：ESLint 9（`eslint-config-next`）
+- Lint：ESLint 9（`eslint-config-next`、`eslint-plugin-better-tailwindcss`）と、CSS のトークンにない値を見つける `scripts/check-tokens.mjs`
 - 整形：Prettier 3（`.prettierrc.json`）
 - Next.js の使い方は、学習した知識ではなく `node_modules/next/dist/docs/` で確かめる（16 は前の版と書き方が違うところがある）
 
@@ -28,7 +30,7 @@ AGENTS.md と CLAUDE.md はテンプレートのものなので、このプロ�
 | `npm run dev` | 見本のページの開発サーバー（http://localhost:3000、`next dev sample`） |
 | `npm run build` | 見本のページを `next build sample` でビルドする |
 | `npm test` | 単体のテストを一度だけ実行する。ファイルを絞るときは `npm test -- <パス>` |
-| `npm run lint` | Lint（ESLint） |
+| `npm run lint` | Lint（ESLint と、CSS のトークンにない値を見つける `scripts/check-tokens.mjs`） |
 | `npm run typecheck` | 型チェック（見本のページのルートの型を作ってから `tsc --noEmit`） |
 | `npm run format` | コード（`.ts .tsx .js .mjs .cjs .jsx .css .json`）を Prettier でまとめて整形する |
 
