@@ -1,0 +1,119 @@
+/*
+  見本のページのトークン。値は md-leaf の今の値（差し色の江戸紫は memory-forge の値）。
+  前半は「アプリが持つ」もの（シリーズで共通の名前。見本ではここで代わりに決める）、
+  後半は「kinari-md が持つ」Markdown の色。
+  ライトかダークかは <html data-theme="light|dark">、差し色は <html data-accent="leaf|forge"> で切り替える。
+*/
+@theme {
+  --*: initial;
+
+  /* アプリが持つ（共通の名前） */
+  --color-bg: var(--c-bg);
+  --color-surface: var(--c-surface);
+  --color-text: var(--c-text);
+  --color-muted: var(--c-muted);
+  --color-border: var(--c-border);
+  --color-accent: var(--c-accent);
+  --color-on-accent: var(--c-on-accent);
+  --color-success: var(--c-success);
+  --color-warning: var(--c-warning);
+  --color-danger: var(--c-danger);
+  --color-info: var(--c-info);
+
+  /* kinari-md が持つ（Markdown の色） */
+  --color-code-bg: var(--c-code-bg);
+  --color-code-line: var(--c-code-line);
+  --color-code-keyword: var(--c-code-keyword);
+  --color-code-string: var(--c-code-string);
+  --color-code-comment: var(--c-code-comment);
+  --color-callout-abstract: var(--c-callout-abstract);
+  --color-callout-important: var(--c-callout-important);
+  --color-callout-caution: var(--c-callout-caution);
+
+  --font-body: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
+  --font-ui: "Hiragino Sans", "Yu Gothic UI", "Noto Sans JP", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Consolas, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 1.75rem;
+
+  --leading-tight: 1.4;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.8;
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  --spacing: 0.25rem;
+  --default-transition-duration: 200ms;
+  --default-transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --container-prose: 46rem;
+  --breakpoint-lg: 64rem;
+}
+
+:root {
+  --reading-size: 16px;
+  --table-col-m: 7em;
+  --table-col-l: 13em;
+
+  --c-bg: #fbf8f1;
+  --c-surface: #f2ede0;
+  --c-text: #2b2a26;
+  --c-muted: #77736a;
+  --c-border: #e2dac7;
+  --c-accent: #4f7a3a;
+  --c-on-accent: #ffffff;
+  --c-success: #3f8a6a;
+  --c-warning: #b07a1c;
+  --c-danger: #b0453a;
+  --c-info: #3d6ea8;
+
+  --c-code-bg: #f2ede0;
+  --c-code-line: #a9a395;
+  --c-code-keyword: #8a4f9e;
+  --c-code-string: #4f7a3a;
+  --c-code-comment: #8f8a7e;
+  --c-callout-abstract: #2f8590;
+  --c-callout-important: #8a52a8;
+  --c-callout-caution: #c9681f;
+}
+
+[data-accent="forge"] {
+  --c-accent: #6a4a8c;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --c-bg: #1d1c19;
+  --c-surface: #272520;
+  --c-text: #e6e1d5;
+  --c-muted: #a19c8f;
+  --c-border: #39362e;
+  --c-accent: #9cc27f;
+  --c-on-accent: #1d1c19;
+  --c-success: #7fc4a4;
+  --c-warning: #e0b35e;
+  --c-danger: #e58a7f;
+  --c-info: #86aee0;
+
+  --c-code-bg: #272520;
+  --c-code-line: #6b665a;
+  --c-code-keyword: #c79ad8;
+  --c-code-string: #9cc27f;
+  --c-code-comment: #7e796d;
+  --c-callout-abstract: #74c3cc;
+  --c-callout-important: #c49ae0;
+  --c-callout-caution: #f0a060;
+}
+
+[data-theme="dark"][data-accent="forge"] {
+  --c-accent: #b9a0dc;
+}
