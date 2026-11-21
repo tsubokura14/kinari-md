@@ -181,7 +181,7 @@ decisions スキルの「AIが決めてよいもの」で、AIが選んだもの
 
 - [x] ひな形とテストの実行：一番上の `package.json`（`exports`・`files`）、`src/markdown/index.ts`、`sample/` の見本の Next.js（題だけのページで `kinari-md/markdown` を読み込む）、Vitest・ESLint・Prettier・tsconfig を作り、`npm test`・`npm run lint`・`npm run typecheck`・`npm run dev` が動き、`docs/overview.md` の「技術」と `CLAUDE.project.md` の「技術」「よく使うコマンド」、`docs/libraries/`（next・vitest）の下書きを書いたら完了
 - [x] 本番のトークンファイル：`src/styles/tokens.css` と `sample/app/tokens.css` に分けて移し、`docs/tokens.css` を消し、トークンにない値を見つける Lint（`scripts/check-tokens.mjs` とテスト、ESLint の規則）を足し、`docs/ui.md` の「トークン」と `docs/design.md` を書いたら完了
-- [ ] 画像を撮る仕組み：Playwright を Docker で動かす `scripts/playwright-docker.mjs`、`playwright.config.ts`、今の見本のページを撮るテスト（`sample-empty-light.png`）を作り、`npm run screenshots`・`npm run test:visual` を `CLAUDE.project.md` に書き、`docs/design.md` と `docs/libraries/playwright.md` を書いたら完了
+- [x] 画像を撮る仕組み：Playwright を Docker で動かす `scripts/playwright-docker.mjs`、`playwright.config.ts`、今の見本のページを撮るテスト（`sample-empty-light.png`）を作り、`npm run screenshots`・`npm run test:visual` を `CLAUDE.project.md` に書き、`docs/design.md` と `docs/libraries/playwright.md` を書いたら完了
 - [ ] 見本のページの帯（画面。合わせるスクリーンショット：`docs/agreed-screens/sample-light.png`・`sample-dark.png` の上の帯のうち、題とライト・ダークのボタンだけ）：切り替えのテスト（`e2e/sample.spec.ts`）を先に書き、帯と切り替えを作り、`sample-empty-light.png`・`sample-empty-dark.png` を撮ったら完了
 - [ ] CI：`.github/workflows/ci.yml` を足したら完了
 - [ ] 編集したあとのフック：`.claude/hooks/format-on-edit.mjs` とテスト、`.claude/settings.json` の `PostToolUse` を足し、`.claude/rules/testing.md` の `paths:` を直し、Windows で実際に整形されることを確かめたら完了
