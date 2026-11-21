@@ -1,0 +1,30 @@
+/*
+  kinari-md が持つ Markdown の値（入口 kinari-md/tokens.css）。
+  色はライト（:root）とダーク（[data-theme="dark"]）の2組。地・文字・差し色・意味の色・書体はアプリのトークンを読む。
+  docs/design.md の「Markdown の色は普通の CSS 変数で配る」
+*/
+:root {
+  --color-code-bg: #f2ede0;
+  --color-code-line: #a9a395;
+  --color-code-keyword: #8a4f9e;
+  --color-code-string: #4f7a3a;
+  --color-code-comment: #8f8a7e;
+  --color-callout-abstract: #2f8590;
+  --color-callout-important: #8a52a8;
+  --color-callout-caution: #c9681f;
+
+  /* 表の列の幅（文字数の段階） */
+  --table-col-m: 7em;
+  --table-col-l: 13em;
+}
+
+[data-theme="dark"] {
+  --color-code-bg: #272520;
+  --color-code-line: #6b665a;
+  --color-code-keyword: #c79ad8;
+  --color-code-string: #9cc27f;
+  --color-code-comment: #7e796d;
+  --color-callout-abstract: #74c3cc;
+  --color-callout-important: #c49ae0;
+  --color-callout-caution: #f0a060;
+}

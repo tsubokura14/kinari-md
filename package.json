@@ -8,7 +8,8 @@
     "url": "git+https://github.com/tsubokura14/kinari-md.git"
   },
   "exports": {
-    "./markdown": "./src/markdown/index.ts"
+    "./markdown": "./src/markdown/index.ts",
+    "./tokens.css": "./src/styles/tokens.css"
   },
   "files": [
     "src",
@@ -19,20 +20,23 @@
     "build": "next build sample",
     "start": "next start sample",
     "test": "vitest run",
-    "lint": "eslint",
+    "lint": "eslint && node scripts/check-tokens.mjs",
     "typecheck": "next typegen sample && tsc --noEmit",
     "format": "prettier --write \"**/*.{ts,tsx,js,mjs,cjs,jsx,css,json}\""
   },
   "devDependencies": {
+    "@tailwindcss/turbopack": "4.3.3",
     "@types/node": "^24.19.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
+    "eslint-plugin-better-tailwindcss": "^4.11.0",
     "next": "16.4.6",
     "prettier": "3.9.10",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "tailwindcss": "4.3.3",
     "typescript": "^5",
     "vitest": "^5.1.0"
   }

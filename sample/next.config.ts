@@ -6,6 +6,15 @@ const nextConfig: NextConfig = {
   // next dev が AI のエージェントを見つけると AGENTS.md に Next.js の案内を書き足す。
   // AGENTS.md はテンプレートのファイルで、このプロジェクトでは書き換えないため止める
   agentRules: false,
+  // Tailwind CSS を md-leaf と同じく Turbopack の loader で通す（PostCSS の設定ファイルを置かない）
+  turbopack: {
+    rules: {
+      "*.css": {
+        loaders: ["@tailwindcss/turbopack"],
+        as: "*.css",
+      },
+    },
+  },
 };
 
 export default nextConfig;
