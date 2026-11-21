@@ -28,3 +28,7 @@ Thumbs.db
 
 # Claude Code の個人設定
 .claude/settings.local.json
+
+# Playwright（画像を比べるテストの結果）
+playwright-report/
+test-results/
