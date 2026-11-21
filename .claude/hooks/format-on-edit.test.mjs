@@ -21,11 +21,16 @@ describe("toolsFor", () => {
 
   it("対象でない種類のファイル（.md、画像）には、何もかけない", () => {
     expect(toolsFor(inRepo("docs", "ui.md"), ROOT, exists)).toEqual([]);
-    expect(toolsFor(inRepo("docs", "specs", "screens", "sample-empty-light.png"), ROOT, exists)).toEqual([]);
+    expect(
+      toolsFor(inRepo("docs", "specs", "screens", "sample-empty-light.png"), ROOT, exists),
+    ).toEqual([]);
   });
 
   it("拡張子の大文字・小文字は区別しない", () => {
-    expect(toolsFor(inRepo("src", "markdown", "Index.TS"), ROOT, exists)).toEqual(["prettier", "eslint"]);
+    expect(toolsFor(inRepo("src", "markdown", "Index.TS"), ROOT, exists)).toEqual([
+      "prettier",
+      "eslint",
+    ]);
   });
 
   it("リポジトリの外のファイルには、何もかけない", () => {
