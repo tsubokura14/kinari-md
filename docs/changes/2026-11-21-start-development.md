@@ -154,6 +154,8 @@ decisions スキルの「AIが決めてよいもの」で、AIが選んだもの
 - Markdown の色のトークンは、Tailwind の `@theme` ではなく普通の CSS 変数（`--color-code-bg` など）で配る。理由：アプリの Tailwind の設定に左右されない。名前はアプリのトークンと同じく `--color-` で始める。比べた案：`@theme` で配る（アプリが Tailwind を使い、読み込む順番まで合わせる必要がある）
 - 見本のページのライト・ダークは、保存せず、開くたびにライトから始める。理由：仕様にない機能を作らない。比べた案：localStorage に保存する（仕様にない）
 - 画像の幅：スマホの 390×844 で撮る（md-leaf と同じ）。PC の幅は #2 で中身と一緒に足す
+- `package.json` は `"private": true`、版は v0.1.0 のタグを打つまで `0.0.0`。理由：npm に公開しない（`docs/overview.md`）ので、誤って `npm publish` しても止まるようにする。`private` は GitHub のタグで入れるのには影響しない。比べた案：`private` を付けない（公開の操作を止めるものがない）
+- 型チェックは一番上の `tsconfig.json` 1つで `src/` と `sample/` をまとめて行い、`sample/tsconfig.json` はそれを `extends` するだけにする。理由：Next.js は見本のフォルダの `tsconfig.json` を読み、なければ作るため要るが、設定を2か所に書かずに済む。比べた案：`sample/` だけの設定を別に持つ（strict などが2か所に分かれる）
 
 ## 確かめ方
 
