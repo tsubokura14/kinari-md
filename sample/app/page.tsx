@@ -3,8 +3,8 @@ import { packageName } from "kinari-md/markdown";
 
 export default function Home() {
   return (
-    <main>
-      <h1>{packageName} 見本</h1>
+    <main className="px-4 py-6 text-sm text-muted">
+      <p>{packageName} で変換した Markdown を、ここに並べる（これから入れる）。</p>
     </main>
   );
 }
