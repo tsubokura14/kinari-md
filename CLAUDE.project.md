@@ -9,14 +9,15 @@ AGENTS.md と CLAUDE.md はテンプレートのものなので、このプロ�
 
 <!-- 立ち上げで決めたら書く。詳しくは docs/overview.md -->
 
-- パッケージ：TypeScript 5.9 のまま配る（ビルドしない）。入口は一番上の `package.json` の `exports`（`kinari-md/markdown` → `src/markdown/index.ts`）、配る中身は `files`（`src/` だけ）。Node.js 24
+- パッケージ：TypeScript 5.9 のまま配る（ビルドしない）。入口は一番上の `package.json` の `exports`（`kinari-md/markdown` → `src/markdown/index.ts`、`kinari-md/body.css` → `src/styles/body.css`、`kinari-md/mermaid` → `src/mermaid/index.ts`、`kinari-md/tokens.css` → `src/styles/tokens.css`）、配る中身は `files`（`src/` だけ）。Node.js 24
+  - Markdown の変換：unified（remark・rehype）・highlight.js・KaTeX・yaml。図：mermaid。どれも版を固定して `dependencies` に入れる（`docs/design.md`）
   - `src/` は strict で通る書き方にする。`package.json` に `prepare` などのスクリプトを置かない（`docs/design.md` の「`src/` は TypeScript のまま配り、アプリがビルドする」）
-- 見本のページ：`sample/` の Next.js 16（App Router）＋ React 19。パッケージには入らない。アプリと同じく `kinari-md/markdown` をパッケージの名前で読み込み（`exports` の自分自身の参照）、`transpilePackages` でビルドする（`sample/next.config.ts`）
+- 見本のページ：`sample/` の Next.js 16（App Router）＋ React 19。パッケージには入らない。アプリと同じく4つの入口をパッケージの名前で読み込み（`exports` の自分自身の参照）、`transpilePackages` でビルドする（`sample/next.config.ts`）
   - 型チェックは一番上の `tsconfig.json` でまとめて行う。`sample/tsconfig.json` はそれを `extends` するだけ（Next.js が見本のフォルダで読むため）
 - トークン：`src/styles/tokens.css`（入口 `kinari-md/tokens.css`。Markdown の色と表の列の幅）と、見本だけの `sample/app/tokens.css`。値はこの2つにだけ書く（`docs/design.md`）
 - 見た目（見本のページ）：Tailwind CSS 4.3.3（`@tailwindcss/turbopack`。`sample/app/globals.css`）
 - テスト：Vitest 5（`src/`・`scripts/`・`.claude/hooks/` の `*.test.ts`・`*.test.mjs` を Node で動かす。`vitest.config.mts`）
-- 画像のテスト：Playwright 1.65.0（`e2e/`、`playwright.config.ts`）。公式の Docker イメージに日本語の書体を入れたイメージ（`docker/playwright/`）の中で動かす（`scripts/playwright-docker.mjs`。Docker Desktop が要る）
+- 画像のテスト：Playwright 1.65.0（`e2e/`、`playwright.config.ts`。スマホの幅の project `mobile` と、`*-pc.spec.ts` を PC の幅で動かす `pc`）。公式の Docker イメージに日本語の書体を入れたイメージ（`docker/playwright/`）の中で動かす（`scripts/playwright-docker.mjs`。手元も CI も同じ。Docker Desktop が要る）
 - Lint：ESLint 9（`eslint-config-next`、`eslint-plugin-better-tailwindcss`）と、CSS のトークンにない値を見つける `scripts/check-tokens.mjs`
 - 整形：Prettier 3（`.prettierrc.json`）
 - Next.js の使い方は、学習した知識ではなく `node_modules/next/dist/docs/` で確かめる（16 は前の版と書き方が違うところがある）
