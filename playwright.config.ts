@@ -17,11 +17,22 @@ export default defineConfig({
   },
   projects: [
     {
-      name: "chromium",
-      // 幅はスマホ（md-leaf と同じ）。PC の幅は #2 で中身と一緒に足す
+      name: "mobile",
+      // 幅はスマホ（md-leaf と同じ）。画像は合意した画像と同じく2倍で撮る
+      testIgnore: /-pc\.spec\.ts$/,
       use: {
         ...devices["Desktop Chrome"],
         viewport: { width: 390, height: 844 },
+        deviceScaleFactor: 2,
+        baseURL: `http://localhost:${port}`,
+      },
+    },
+    {
+      name: "pc",
+      testMatch: /-pc\.spec\.ts$/,
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1440, height: 900 },
         baseURL: `http://localhost:${port}`,
       },
     },
