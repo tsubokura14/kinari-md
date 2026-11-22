@@ -1,3 +1,5 @@
 # シェルスクリプトは、Windows で取り出しても改行を LF のままにする（CRLF だと動かないため）
 *.sh text eol=lf
 .githooks/* text eol=lf
+# 画像を撮るイメージの材料も LF にする（RUN の行の続きが CRLF で壊れないように）
+docker/** text eol=lf

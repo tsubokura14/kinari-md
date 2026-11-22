@@ -77,7 +77,7 @@ kinari-md をさらに直したときは、1 からやり直す。tgz はコピ�
 - TypeScript（ビルドせずに配り、アプリの Next.js の `transpilePackages` でビルドする）
 - Markdown の変換：unified（remark・rehype）、highlight.js、KaTeX、mermaid（#2 から）
 - 見本のページ：Next.js 16（App Router）、React 19、Tailwind CSS 4
-- テスト：Vitest。見本のページの画像を、Playwright の公式の Docker イメージで撮って比べる（ライトとダーク）
+- テスト：Vitest。見本のページの画像を、Playwright の公式の Docker イメージに日本語の書体を入れたイメージで撮って比べる（ライトとダーク）
 - Lint・整形：ESLint、Prettier
 
 ## セットアップ

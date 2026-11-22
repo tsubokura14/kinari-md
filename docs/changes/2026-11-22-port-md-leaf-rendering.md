@@ -203,6 +203,7 @@ decisions スキルの「AIが決めてよいもの」で、AIが選んだもの
 - 見本のページの本文には画像を入れない（合意した画像にない）。画像の出し方は変換のテストで、見た目はコードで確かめる
 - 見本のページの帯の状態は URL だけに持つ（保存しない）
 - 画像を撮るイメージ：Dockerfile は `FROM mcr.microsoft.com/playwright:v<入れた版>-noble` に `fonts-noto-cjk` を版を固定して入れ、fontconfig の別名で `Noto Serif JP`・`Noto Sans JP` を `Noto Serif CJK JP`・`Noto Sans CJK JP` に当てる（トークンの書体の並びはそのまま）。イメージの名前に Dockerfile の中身から作った値を入れ、Dockerfile を変えたら作り直す。CI も `scripts/playwright-docker.mjs` で同じイメージを作って撮る。理由：手元と CI が同じ手順・同じイメージになる。比べた案：作ったイメージを GitHub Container Registry に置く（置き場所と更新の手間が増える）／CI だけ root で書体を入れる（手元と手順が分かれる）
+- 画像を撮るイメージの Dockerfile は、もとのイメージの版を書かず、`scripts/playwright-docker.mjs` が入れた `@playwright/test` の版を `ARG PLAYWRIGHT_VERSION` で渡す。イメージの名前にもその版を入れる。fonts.conf の別名が当たっていることは、イメージを作るときに `fc-match` で確かめる。理由：Playwright を上げたときに Dockerfile の直し忘れでブラウザが見つからなくなるのを防ぐ。fontconfig は設定ファイルが読めなくても警告だけで進むため。比べた案：Dockerfile に `v1.65.0` を書く（版を上げるたびに2か所を直す）
 
 ## 確かめ方
 

@@ -66,12 +66,14 @@
 - 前提（崩れたら見直す）：トークンファイルを増やしたり移したりしたら、`scripts/check-tokens.mjs` の `TOKEN_FILES` と `eslint.config.mjs` のメッセージを直す
 - 当てはまる場所：トークンファイル以外の `.css`・`.ts`・`.tsx`
 
-### 見本のページの画像は、Playwright 公式の Docker イメージで撮って比べる
+### 見本のページの画像は、日本語の書体を入れた Playwright のイメージで撮って比べる
 
-- `npm run screenshots`（撮り直す）と `npm run test:visual`（比べるだけ）は、`scripts/playwright-docker.mjs` で、入れた `@playwright/test` と同じ版の公式イメージ（`mcr.microsoft.com/playwright:v<版>-noble`）の中で `playwright test` を走らせる。環境変数 `CI` があれば Docker を使わずそのまま走らせる（CI はそのイメージのコンテナの中で動かす）
+- `npm run screenshots`（撮り直す）と `npm run test:visual`（比べるだけ）は、`scripts/playwright-docker.mjs` で、`docker/playwright/` のイメージを作り、その中で `playwright test` を走らせる。手元でも CI でも同じスクリプトで動かす
+- イメージは、入れた `@playwright/test` と同じ版の公式イメージ（`mcr.microsoft.com/playwright:v<版>-noble`）に、日本語の書体 `fonts-noto-cjk`（Noto Sans CJK JP・Noto Serif CJK JP。Regular と Bold）を版を固定して入れたもの。トークンの書体の並びにある `Noto Serif JP`・`Noto Sans JP` は、`docker/playwright/fonts.conf` で CJK JP の書体に当てる
+- イメージの名前（`kinari-md-playwright:v<版>-<Dockerfile と fonts.conf の中身から作った値>`）が変わったときだけ作り直す
 - 基準の画像は `docs/specs/screens/<画面>-<状態>.png`（名前に OS 名を入れない。`playwright.config.ts` の `snapshotPathTemplate`）。「今の画面」としても使う
 - サーバーは `next build sample` のあと `next start sample` で1つだけ立てる（開発サーバーは初回の変換が遅く、表示が揺れるため）。ポートは環境変数 `PORT`（既定 3100）
 - コンテナの中の `node_modules` と `sample/.next` は、フォルダごとの名前つきボリューム（`kinari-md-<フォルダの場所から作った値>-node_modules`・`-next`）に分ける
-- 理由：OS が違うと文字の描き方が変わり、画像が一致しないため。Windows で入れた `node_modules` は Linux で動かないため
-- 前提（崩れたら見直す）：手元に Docker Desktop がある。見本のページはデータを取ってこないので、撮る状態はページそのもので作る（状態を足すときは、ここに作り方を書く）
-- 当てはまる場所：`e2e/`、`playwright.config.ts`、`scripts/playwright-docker.mjs`
+- 理由：OS が違うと文字の描き方が変わり、画像が一致しないため。公式のイメージの日本語の書体は Regular だけで明朝もなく、太字と明朝の崩れが画像に出ないため。Windows で入れた `node_modules` は Linux で動かないため
+- 前提（崩れたら見直す）：手元に Docker Desktop があり、CI の実行環境で `docker` が使える。書体の版を上げたら画像を撮り直す。見本のページはデータを取ってこないので、撮る状態はページそのもので作る（状態を足すときは、ここに作り方を書く）
+- 当てはまる場所：`e2e/`、`playwright.config.ts`、`scripts/playwright-docker.mjs`、`docker/playwright/`、`.github/workflows/ci.yml`

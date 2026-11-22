@@ -16,7 +16,7 @@ AGENTS.md と CLAUDE.md はテンプレートのものなので、このプロ�
 - トークン：`src/styles/tokens.css`（入口 `kinari-md/tokens.css`。Markdown の色と表の列の幅）と、見本だけの `sample/app/tokens.css`。値はこの2つにだけ書く（`docs/design.md`）
 - 見た目（見本のページ）：Tailwind CSS 4.3.3（`@tailwindcss/turbopack`。`sample/app/globals.css`）
 - テスト：Vitest 5（`src/`・`scripts/`・`.claude/hooks/` の `*.test.ts`・`*.test.mjs` を Node で動かす。`vitest.config.mts`）
-- 画像のテスト：Playwright 1.65.0（`e2e/`、`playwright.config.ts`）。公式の Docker イメージの中で動かす（`scripts/playwright-docker.mjs`。Docker Desktop が要る）
+- 画像のテスト：Playwright 1.65.0（`e2e/`、`playwright.config.ts`）。公式の Docker イメージに日本語の書体を入れたイメージ（`docker/playwright/`）の中で動かす（`scripts/playwright-docker.mjs`。Docker Desktop が要る）
 - Lint：ESLint 9（`eslint-config-next`、`eslint-plugin-better-tailwindcss`）と、CSS のトークンにない値を見つける `scripts/check-tokens.mjs`
 - 整形：Prettier 3（`.prettierrc.json`）
 - Next.js の使い方は、学習した知識ではなく `node_modules/next/dist/docs/` で確かめる（16 は前の版と書き方が違うところがある）

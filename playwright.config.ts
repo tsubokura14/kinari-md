@@ -5,7 +5,7 @@ const port = Number(process.env.PORT ?? 3100);
 
 export default defineConfig({
   testDir: "e2e",
-  // docs/design.md の「見本のページの画像は、Playwright 公式の Docker イメージで撮って比べる」
+  // docs/design.md の「見本のページの画像は、日本語の書体を入れた Playwright のイメージで撮って比べる」
   snapshotPathTemplate: "docs/specs/screens/{arg}{ext}",
   forbidOnly: !!process.env.CI,
   reporter: [["list"], ["html", { open: "never" }]],
