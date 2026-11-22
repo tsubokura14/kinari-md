@@ -199,6 +199,8 @@ decisions スキルの「AIが決めてよいもの」で、AIが選んだもの
 - アプリの中へのリンクに付ける印は `data-internal-link`。理由：md-leaf だけの名前（`data-note-link`）にしない。md-leaf が替えるときに、クリックを受ける側の名前を直す
 - 本文の入れ物のクラスは `kinari-body`（合意した見本のページと同じ）
 - 依存は md-leaf と同じ版を `dependencies` に、版を固定して入れる。理由：md-leaf と同じ出し方にするため。比べた案：`peerDependencies`（アプリが自分で全部入れる必要がある）
+- 配る `src/` が型で使う `vfile`・`@types/hast`・`@types/mdast` も、md-leaf（devDependencies）と違い `dependencies` に入れる。理由：アプリの `tsc` が `node_modules/kinari-md/src` を型チェックするので、アプリに入っていないと型が見つからない。比べた案：devDependencies のまま（unified の依存として入るのに頼ることになり、入れ方によっては型が見つからない）
+- 見出しの型と処理の名前は、ノートに限らないので `Heading`・`collectHeadings` にする（md-leaf は `NoteHeading`・`noteHeadings`）
 - md-leaf の変換のテストを、書き換えの関数の形に合わせて移す。md-leaf のノートの置き場所に頼るテスト（`note-links`・`note-images` の中身）は移さない
 - 見本のページの本文には画像を入れない（合意した画像にない）。画像の出し方は変換のテストで、見た目はコードで確かめる
 - 見本のページの帯の状態は URL だけに持つ（保存しない）
