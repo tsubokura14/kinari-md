@@ -80,12 +80,12 @@ md-leaf と memory-forge は、Markdown の変換と本文の見た目をそれ�
 
 | 状態 | 表示 | スクリーンショット |
 | --- | --- | --- |
-| ライト・若葉・16px（スマホ） | 帯（題・ライト/ダーク・若葉/江戸紫・14px/16px）、「ノート（md-leaf での使い方。書き方はすべて使える）」の小さな説明、題、見本の本文 | ![](../agreed-screens/sample-light.png) |
-| ダーク・若葉・16px（スマホ） | 同じ。墨の地 | ![](../agreed-screens/sample-dark.png) |
-| ダーク・江戸紫（スマホ） | リンク・選んだボタンが江戸紫 | ![](../agreed-screens/sample-dark-forge.png) |
-| ライト・14px（スマホ） | 本文と見出しが小さくなる。帯は変わらない | ![](../agreed-screens/sample-light-14.png) |
-| ライト（PC） | 帯の中身と本文が prose の幅で真ん中 | ![](../agreed-screens/sample-light-pc.png) |
-| ダーク（PC） | 同じ。墨の地 | ![](../agreed-screens/sample-dark-pc.png) |
+| ライト・若葉・16px（スマホ） | 帯（題・ライト/ダーク・若葉/江戸紫・14px/16px）、「ノート（md-leaf での使い方。書き方はすべて使える）」の小さな説明、題、見本の本文 | ![](../specs/screens/sample-light.png) |
+| ダーク・若葉・16px（スマホ） | 同じ。墨の地 | ![](../specs/screens/sample-dark.png) |
+| ダーク・江戸紫（スマホ） | リンク・選んだボタンが江戸紫 | ![](../specs/screens/sample-dark-forge.png) |
+| ライト・14px（スマホ） | 本文と見出しが小さくなる。帯は変わらない | ![](../specs/screens/sample-light-14.png) |
+| ライト（PC） | 帯の中身と本文が prose の幅で真ん中 | ![](../specs/screens/sample-light-pc.png) |
+| ダーク（PC） | 同じ。墨の地 | ![](../specs/screens/sample-dark-pc.png) |
 
 - 見本の本文の Markdown：[sample.md](2026-11-22-port-md-leaf-rendering/sample.md)（合意した画像を作ったもの）
 - 帯：`position: sticky` で上に残る。ボタンの組（ライト・ダーク／若葉・江戸紫／14px・16px）ごとに間を空ける
