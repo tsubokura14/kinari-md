@@ -24,7 +24,8 @@ const eslintConfig = defineConfig([
       "better-tailwindcss": { entryPoint: "sample/app/globals.css" },
     },
     rules: {
-      "better-tailwindcss/no-unknown-classes": "error",
+      // kinari-body は本文の CSS（kinari-md/body.css）のクラスで、Tailwind のクラスではない
+      "better-tailwindcss/no-unknown-classes": ["error", { ignore: ["^kinari-body$"] }],
       "better-tailwindcss/no-restricted-classes": [
         "error",
         {

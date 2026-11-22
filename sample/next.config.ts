@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
         loaders: ["@tailwindcss/turbopack"],
         as: "*.css",
       },
+      // 見本の本文（sample/app/note.md）を文字のまま読み込む
+      "*.md": {
+        type: "raw",
+      },
     },
   },
 };
