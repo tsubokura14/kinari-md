@@ -242,4 +242,4 @@ decisions スキルの「AIが決めてよいもの」で、AIが選んだもの
 - [x] リンクと画像の書き換え（`links.ts`。`resolve` の関数・`data-internal-link`・切れたリンクと画像の一覧・画像だけの段落の `figure`）を足し、テストが通ったら完了
 - [x] 本文の CSS（`src/styles/body.css`、入口 `kinari-md/body.css`）と図を描く入口（`src/mermaid/index.ts`、入口 `kinari-md/mermaid`）を作り、`npm run lint`・型チェックが通ったら完了（見た目は次のタスクの画像で合わせる）
 - [x] 見本のページ：見本の本文（`sample.md`）を本物の変換と本文の CSS・図で出し、帯（ライト/ダーク・若葉/江戸紫・14px/16px、URL の `?theme=`・`accent=`・`size=`、sticky、PC で prose の幅で真ん中）を作る。E2E（帯・URL・折りたたみ・図・文字の大きさ・横のスクロール）が通り、合意した画像 `docs/agreed-screens/sample-light.png`・`sample-dark.png`・`sample-dark-forge.png`・`sample-light-14.png`・`sample-light-pc.png`・`sample-dark-pc.png` のノートの部分に合わせて `docs/specs/screens/` に撮ったら完了。中身のない見本の画像（`sample-empty-*`）とそのテストは消す
-- [ ] 版：`package.json` を 0.1.0・`license: MIT` にし、`LICENSE`・`CHANGELOG.md` を書き、`docs/libraries/` に入れたライブラリの下書きを書いたら完了
+- [x] 版：`package.json` を 0.1.0・`license: MIT` にし、`LICENSE`・`CHANGELOG.md` を書き、`docs/libraries/` に入れたライブラリの下書きを書いたら完了
