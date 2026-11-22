@@ -207,6 +207,9 @@ decisions スキルの「AIが決めてよいもの」で、AIが選んだもの
 - 画像を撮るイメージ：Dockerfile は `FROM mcr.microsoft.com/playwright:v<入れた版>-noble` に `fonts-noto-cjk` を版を固定して入れ、fontconfig の別名で `Noto Serif JP`・`Noto Sans JP` を `Noto Serif CJK JP`・`Noto Sans CJK JP` に当てる（トークンの書体の並びはそのまま）。イメージの名前に Dockerfile の中身から作った値を入れ、Dockerfile を変えたら作り直す。CI も `scripts/playwright-docker.mjs` で同じイメージを作って撮る。理由：手元と CI が同じ手順・同じイメージになる。比べた案：作ったイメージを GitHub Container Registry に置く（置き場所と更新の手間が増える）／CI だけ root で書体を入れる（手元と手順が分かれる）
 - 画像を撮るイメージの Dockerfile は、もとのイメージの版を書かず、`scripts/playwright-docker.mjs` が入れた `@playwright/test` の版を `ARG PLAYWRIGHT_VERSION` で渡す。イメージの名前にもその版を入れる。fonts.conf の別名が当たっていることは、イメージを作るときに `fc-match` で確かめる。理由：Playwright を上げたときに Dockerfile の直し忘れでブラウザが見つからなくなるのを防ぐ。fontconfig は設定ファイルが読めなくても警告だけで進むため。比べた案：Dockerfile に `v1.65.0` を書く（版を上げるたびに2か所を直す）
 - 書き換えの関数に渡す `href` は、HTML に出る形（符号化されたもの。`#`・`?` のあとも含む）にする。切れたリンクの一覧だけは `decodeURI` した形。理由：md-leaf の `resolveNoteLink`・`resolveImageSrc` が今この形を受けて自分で読み解くので、md-leaf が替えるときに中身を変えずに渡せる。比べた案：`decodeURI` した形を渡す（md-leaf の読み解きを直す必要があり、`%2F` などの区別が消える）
+- 本文の CSS の文字の倍率は、md-leaf の rem の値をそのまま em にする（h2 は 1.5em、h3 は 1.25em、コード・表・コールアウトの見出し・画像の代わりの文字は 0.875em）。余白は `--spacing` の段階のままで、本文の大きさでは変えない。理由：`--reading-size` が 16px のとき md-leaf と同じ大きさになり、見出しとコードが本文と同じ倍率で変わる。比べた案：トークンの割り算（`calc(var(--text-xl) / var(--text-base) * 1em)`。長さどうしの割り算は使えるブラウザが限られる）
+- 図の字の大きさは md-leaf のまま、画面の部品と同じ `--text-sm`（rem ならルートの字の大きさで px にする）にし、`--reading-size` では変えない。mermaid の設定を作る部分は `src/mermaid/config.ts` に分け、Node のテストで確かめる。理由：図は表と違い、大きさを変えると描き直しが要る（今は `data-theme` の変化だけを見る）。比べた案：本文の大きさに合わせる（`--reading-size` の変化も見て描き直す必要がある）
+- `[data-heading]` の `scroll-margin-top`（md-leaf の上の帯の高さに合わせたもの）は本文の CSS に移さない。理由：帯の高さはアプリが決める。md-leaf が替えるときに自分の CSS で足す
 
 ## 確かめ方
 
@@ -234,6 +237,6 @@ decisions スキルの「AIが決めてよいもの」で、AIが選んだもの
 - [x] 変換の土台：`dependencies` を入れ、`renderMarkdown` がフロントマターの題・GFM・改行・日本語の強調・HTML を文字に・外へのリンク・表の列の幅・見出しの一覧を返す（`render.ts`・`tables.ts`・`headings.ts`）。md-leaf の該当するテストを移して通ったら完了。見本のページは今の `packageName` の代わりに読み込めるものに直す
 - [x] コールアウト・コードの色分け・数式・Mermaid の印（`callouts.ts`・`highlight.ts`・`math.ts`）を足し、md-leaf の該当するテストを移して通ったら完了
 - [x] リンクと画像の書き換え（`links.ts`。`resolve` の関数・`data-internal-link`・切れたリンクと画像の一覧・画像だけの段落の `figure`）を足し、テストが通ったら完了
-- [ ] 本文の CSS（`src/styles/body.css`、入口 `kinari-md/body.css`）と図を描く入口（`src/mermaid/index.ts`、入口 `kinari-md/mermaid`）を作り、`npm run lint`・型チェックが通ったら完了（見た目は次のタスクの画像で合わせる）
+- [x] 本文の CSS（`src/styles/body.css`、入口 `kinari-md/body.css`）と図を描く入口（`src/mermaid/index.ts`、入口 `kinari-md/mermaid`）を作り、`npm run lint`・型チェックが通ったら完了（見た目は次のタスクの画像で合わせる）
 - [ ] 見本のページ：見本の本文（`sample.md`）を本物の変換と本文の CSS・図で出し、帯（ライト/ダーク・若葉/江戸紫・14px/16px、URL の `?theme=`・`accent=`・`size=`、sticky、PC で prose の幅で真ん中）を作る。E2E（帯・URL・折りたたみ・図・文字の大きさ・横のスクロール）が通り、合意した画像 `docs/agreed-screens/sample-light.png`・`sample-dark.png`・`sample-dark-forge.png`・`sample-light-14.png`・`sample-light-pc.png`・`sample-dark-pc.png` のノートの部分に合わせて `docs/specs/screens/` に撮ったら完了。中身のない見本の画像（`sample-empty-*`）とそのテストは消す
 - [ ] 版：`package.json` を 0.1.0・`license: MIT` にし、`LICENSE`・`CHANGELOG.md` を書き、`docs/libraries/` に入れたライブラリの下書きを書いたら完了
