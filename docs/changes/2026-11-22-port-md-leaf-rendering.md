@@ -106,9 +106,9 @@ md-leaf と memory-forge は、Markdown の変換と本文の見た目をそれ�
 
 ## 決まっていないこと
 
-- [ ] 画像を撮る Docker のイメージで、日本語の太字が出ない（#1 の PR で分かった）。どうする？（推す答え：画像を撮るテストのときだけ、Noto Serif JP と Noto Sans JP の太字を含む書体を npm のパッケージ（`@fontsource/noto-serif-jp`・`@fontsource/noto-sans-jp`。ライセンスは SIL OFL）から読み込む。見本のページ自体は変えない。比べた案：そのままにする＝追加の作業はないが、見出し・強調・コールアウトの題が画像で太く写らず、太字の崩れを画像で見つけられない／書体を入れた Docker のイメージを自分で作る＝本物に近いが、イメージを作り、置き場所と更新の手間が増える）
-- [ ] パッケージのライセンスは？（推す答え：MIT。`LICENSE` を置き、`package.json` に書く。比べた案：書かない＝自分のアプリで使うだけなら困らないが、公開のリポジトリなのに、ほかの人は使ってよいか分からない）
-- [ ] v0.1.0 の出し方は？（推す答え：この PR で `package.json` の版を 0.1.0 にし、`CHANGELOG.md` を書く。マージのあと、人が main に `v0.1.0` のタグを打つ。比べた案：版を上げる PR を別に出す＝変わったものと版の記録が分かれる／AI がタグを打つ＝取り消しにくく、マージしない決まりと同じく人がするほうがよい）
+- [x] 画像を撮る Docker のイメージで、日本語の太字が出ない（#1 の PR で分かった。イメージにある日本語の書体は Regular だけで、明朝もない）。どうする？（推す答え：公式のイメージをもとに、日本語の書体（Noto Sans CJK JP・Noto Serif CJK JP。太字あり）を版を固定して入れたイメージを Dockerfile で作り、手元でも CI でもそれで撮る。比べた案：そのままにする＝手間はないが、太字と明朝が画像に出ず、崩れを画像で見つけられない／テストのときだけ npm の書体（`@fontsource`）をページに読み込む＝CI は今のままだが、撮る画面がふだんのページと少し違う） → おすすめのまま（Dockerfile で書体を入れたイメージを作る）
+- [x] パッケージのライセンスは？（推す答え：MIT。`LICENSE` を置き、`package.json` に書く。比べた案：書かない＝自分のアプリで使うだけなら困らないが、公開のリポジトリなのに、ほかの人は使ってよいか分からない） → おすすめのまま（MIT）
+- [x] v0.1.0 の出し方は？（推す答え：この PR で `package.json` の版を 0.1.0 にし、`CHANGELOG.md` を書く。マージのあと、人が main に `v0.1.0` のタグを打つ。比べた案：版を上げる PR を別に出す＝変わったものと版の記録が分かれる／AI がタグを打つ＝取り消しにくく、マージしない決まりと同じく人がするほうがよい） → おすすめのまま（この PR で 0.1.0 と CHANGELOG。タグはマージのあとに人が打つ）
 
 ## 技術の確認表
 
@@ -119,11 +119,11 @@ md-leaf と memory-forge は、Markdown の変換と本文の見た目をそれ�
 | 認証・権限 | なし | AI |
 | 費用 | なし | AI |
 | 個人情報 | なし | AI |
-| デプロイの環境 | なし（デプロイは #3）。配る中身（`package.json` の `dependencies` と `exports`）が増える | AI |
-| 新しいライブラリ | unified 一式（remark-parse・remark-gfm・remark-frontmatter・remark-math・remark-breaks・remark-cjk-friendly・remark-rehype・rehype-stringify）・highlight.js・KaTeX・mermaid（人。`docs/overview.md`）。yaml・vfile・@types/hast・@types/mdast（AI。条件に合う）。テストのときの書体（人。「決まっていないこと」） | 人・AI |
+| デプロイの環境 | なし（デプロイは #3）。配る中身（`package.json` の `dependencies` と `exports`）が増える。CI の画像のジョブは、公式のイメージの中で動かすのをやめ、Dockerfile のイメージを作って撮る | 人（「決まっていないこと」）・AI |
+| 新しいライブラリ | unified 一式（remark-parse・remark-gfm・remark-frontmatter・remark-math・remark-breaks・remark-cjk-friendly・remark-rehype・rehype-stringify）・highlight.js・KaTeX・mermaid（人。`docs/overview.md`）。yaml・vfile・@types/hast・@types/mdast（AI。条件に合う）。画像を撮るイメージに入れる日本語の書体 fonts-noto-cjk（人。「決まっていないこと」） | 人・AI |
 | 取り消せない操作 | v0.1.0 のタグ（人が打つ。「決まっていないこと」） | 人 |
 | 共通の部品・トークン | Markdown の色のトークンは #1 のまま使う。値は変えない | AI |
-| `docs/design.md` の決まり | 足す：入口の分け方（変換・本文の CSS・図）、アプリから渡す関数の形、ノートの HTML を文字にする前提（`raw` を作るのは KaTeX と highlight.js だけ） | AI（仕上げで書く） |
+| `docs/design.md` の決まり | 足す：入口の分け方（変換・本文の CSS・図）、アプリから渡す関数の形、ノートの HTML を文字にする前提（`raw` を作るのは KaTeX と highlight.js だけ）。変える：「見本のページの画像は、Playwright 公式の Docker イメージで撮って比べる」を、書体を入れたイメージで撮る形に（`docs/overview.md` の「技術」のテストの行も） | 人（書体）・AI（仕上げで書く） |
 
 ## 調べたこと
 
@@ -157,6 +157,7 @@ decisions スキルの「AIが決めてよいもの」で、AIが選んだもの
 - md-leaf の変換のテストを、書き換えの関数の形に合わせて移す。md-leaf のノートの置き場所に頼るテスト（`note-links`・`note-images` の中身）は移さない
 - 見本のページの本文には画像を入れない（合意した画像にない）。画像の出し方は変換のテストで、見た目はコードで確かめる
 - 見本のページの帯の状態は URL だけに持つ（保存しない）
+- 画像を撮るイメージ：Dockerfile は `FROM mcr.microsoft.com/playwright:v<入れた版>-noble` に `fonts-noto-cjk` を版を固定して入れ、fontconfig の別名で `Noto Serif JP`・`Noto Sans JP` を `Noto Serif CJK JP`・`Noto Sans CJK JP` に当てる（トークンの書体の並びはそのまま）。イメージの名前に Dockerfile の中身から作った値を入れ、Dockerfile を変えたら作り直す。CI も `scripts/playwright-docker.mjs` で同じイメージを作って撮る。理由：手元と CI が同じ手順・同じイメージになる。比べた案：作ったイメージを GitHub Container Registry に置く（置き場所と更新の手間が増える）／CI だけ root で書体を入れる（手元と手順が分かれる）
 
 ## 確かめ方
 
