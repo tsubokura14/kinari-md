@@ -1,0 +1,325 @@
+/*
+  本文の見た目（入口 kinari-md/body.css）。アプリは HTML を .kinari-body の中に入れる。
+  色・書体・余白はアプリのトークンと kinari-md/tokens.css だけを読み、ライト・ダークを書き分けない（docs/ui.md）。
+  Tailwind に頼らない普通の CSS（docs/design.md の「Markdown の色は普通の CSS 変数で配る」）。
+
+  文字の大きさ：本文は --reading-size。見出し・コード・表などは em で倍率をかけ、本文の大きさと一緒に変わる。
+  倍率は md-leaf の rem の値（h2 は text-xl の 1.5、小さめの字は text-sm の 0.875）を、本文の大きさを 1 として書いたもの。
+  余白はトークンの段階（--spacing）のままにし、本文の大きさでは変えない
+*/
+@import "katex/dist/katex.min.css";
+
+.kinari-body {
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--reading-size);
+  line-height: var(--leading-relaxed);
+  overflow-wrap: anywhere;
+}
+
+.kinari-body > * + * {
+  margin-top: calc(var(--spacing) * 4);
+}
+
+.kinari-body h2,
+.kinari-body h3,
+.kinari-body h4,
+.kinari-body h5,
+.kinari-body h6 {
+  font-weight: var(--font-weight-bold);
+  line-height: var(--leading-tight);
+}
+
+.kinari-body h2 {
+  margin-top: calc(var(--spacing) * 8);
+  padding-bottom: calc(var(--spacing) * 3);
+  border-bottom: thin solid var(--color-border);
+  font-size: 1.5em;
+}
+
+.kinari-body h3 {
+  margin-top: calc(var(--spacing) * 6);
+  font-size: 1.25em;
+}
+
+.kinari-body h4,
+.kinari-body h5,
+.kinari-body h6 {
+  margin-top: calc(var(--spacing) * 6);
+  font-size: 1em;
+}
+
+.kinari-body > :first-child {
+  margin-top: 0;
+}
+
+.kinari-body ul,
+.kinari-body ol {
+  padding-left: calc(var(--spacing) * 6);
+}
+
+.kinari-body ul {
+  list-style: disc;
+}
+
+.kinari-body ol {
+  list-style: decimal;
+}
+
+.kinari-body li + li,
+.kinari-body li > ul,
+.kinari-body li > ol {
+  margin-top: calc(var(--spacing) * 2);
+}
+
+.kinari-body a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: calc(var(--spacing) * 1);
+}
+
+.kinari-body strong {
+  font-weight: var(--font-weight-bold);
+}
+
+.kinari-body em {
+  font-style: italic;
+}
+
+/* コード */
+.kinari-body pre {
+  overflow-x: auto;
+  padding: calc(var(--spacing) * 4);
+  border-radius: var(--radius-md);
+  background: var(--color-code-bg);
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  line-height: var(--leading-normal);
+  overflow-wrap: normal;
+  white-space: pre;
+}
+
+.kinari-body code {
+  font-family: var(--font-mono);
+}
+
+.kinari-body :not(pre) > code {
+  padding: 0 calc(var(--spacing) * 1);
+  border-radius: var(--radius-sm);
+  background: var(--color-code-bg);
+  font-size: 0.875em;
+}
+
+/* 色分けは3色だけ。highlight.js の分類を、意味の近い色にまとめる */
+.kinari-body .hljs-keyword,
+.kinari-body .hljs-built_in,
+.kinari-body .hljs-literal,
+.kinari-body .hljs-type,
+.kinari-body .hljs-selector-tag {
+  color: var(--color-code-keyword);
+}
+
+.kinari-body .hljs-string,
+.kinari-body .hljs-regexp,
+.kinari-body .hljs-symbol {
+  color: var(--color-code-string);
+}
+
+.kinari-body .hljs-comment,
+.kinari-body .hljs-quote {
+  color: var(--color-code-comment);
+}
+
+/* 表 */
+.kinari-body .table-scroll {
+  overflow-x: auto;
+}
+
+.kinari-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-ui);
+  font-size: 0.875em;
+  line-height: var(--leading-normal);
+  overflow-wrap: normal;
+  line-break: strict;
+}
+
+/* 列の幅（段階のクラスは src/markdown/tables.ts が付ける）。
+   表の幅は 100% のままでも、列の最小の幅の合計が画面より広ければ表が広がり、枠の中で横にスクロールする。
+   セルの width は、自動の表の組み方では列の最小の幅として効くので、長い列が押しつぶされない */
+.kinari-body .col-s {
+  white-space: nowrap;
+}
+
+.kinari-body .col-m {
+  width: var(--table-col-m);
+}
+
+.kinari-body .col-l {
+  width: var(--table-col-l);
+}
+
+/* 長い英数字（コード・URL）は、列の幅の中で折り返す */
+.kinari-body td > code,
+.kinari-body td > a {
+  overflow-wrap: anywhere;
+}
+
+.kinari-body th,
+.kinari-body td {
+  padding: calc(var(--spacing) * 2.5) calc(var(--spacing) * 4) calc(var(--spacing) * 2.5) 0;
+  border-bottom: thin solid var(--color-border);
+}
+
+.kinari-body th {
+  border-bottom-width: calc(var(--spacing) * 0.5);
+  font-weight: var(--font-weight-bold);
+}
+
+/* 列の揃え（align）を書いていない見出しは、ブラウザの既定（中央）ではなく左に寄せる */
+.kinari-body th:not([align]) {
+  text-align: left;
+}
+
+/* 表の中のコードは、等幅にするだけで地を付けない */
+.kinari-body td > code,
+.kinari-body th > code {
+  padding: 0;
+  background: none;
+  font-size: inherit;
+}
+
+/* 数式。本文の中央に置く数式は、長ければ数式の中で横にスクロールする（縦のスクロールバーは出さない） */
+.kinari-body .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* Mermaid の図。図はもとの大きさで描き（src/mermaid/index.ts）、収まらなければ枠の中で横にスクロールする */
+.kinari-body .mermaid-figure {
+  overflow-x: auto;
+  padding: calc(var(--spacing) * 5) calc(var(--spacing) * 4);
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  line-height: var(--leading-normal);
+}
+
+.kinari-body .mermaid-figure svg {
+  display: block;
+  margin: 0 auto;
+}
+
+/* コールアウト。色は data-callout（src/markdown/callouts.ts）で決め、地はその色を bg に薄く混ぜる */
+.kinari-body .callout {
+  --callout-color: var(--color-info);
+  padding: calc(var(--spacing) * 3);
+  border-left: calc(var(--spacing) * 1) solid var(--callout-color);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--callout-color) 12%, var(--color-bg));
+}
+
+.kinari-body .callout[data-callout="tip"] {
+  --callout-color: var(--color-success);
+}
+
+.kinari-body .callout[data-callout="warning"] {
+  --callout-color: var(--color-warning);
+}
+
+.kinari-body .callout[data-callout="danger"] {
+  --callout-color: var(--color-danger);
+}
+
+.kinari-body .callout[data-callout="abstract"] {
+  --callout-color: var(--color-callout-abstract);
+}
+
+.kinari-body .callout[data-callout="important"] {
+  --callout-color: var(--color-callout-important);
+}
+
+.kinari-body .callout[data-callout="caution"] {
+  --callout-color: var(--color-callout-caution);
+}
+
+.kinari-body .callout-title {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  color: var(--callout-color);
+  font-family: var(--font-ui);
+  font-size: 0.875em;
+  font-weight: var(--font-weight-bold);
+  line-height: var(--leading-tight);
+}
+
+.kinari-body summary.callout-title {
+  cursor: pointer;
+  list-style: none;
+}
+
+.kinari-body summary.callout-title::-webkit-details-marker {
+  display: none;
+}
+
+.kinari-body .callout-icon,
+.kinari-body .callout-chevron {
+  flex: none;
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+}
+
+.kinari-body .callout-chevron {
+  margin-left: auto;
+  transition: transform var(--default-transition-duration) var(--default-transition-timing-function);
+}
+
+.kinari-body .callout[open] > summary .callout-chevron {
+  transform: rotate(90deg);
+}
+
+.kinari-body .callout-content {
+  margin-top: calc(var(--spacing) * 2);
+}
+
+.kinari-body .callout-content > * + * {
+  margin-top: calc(var(--spacing) * 3);
+}
+
+/* 画像。本文の幅に収め、小さい画像は引き延ばさない */
+.kinari-body img {
+  display: inline-block;
+  max-width: 100%;
+  height: auto;
+  border: thin solid var(--color-border);
+  border-radius: var(--radius-md);
+  vertical-align: middle;
+}
+
+.kinari-body figure img {
+  display: block;
+  margin: 0 auto;
+}
+
+.kinari-body figcaption {
+  margin-top: calc(var(--spacing) * 2);
+  color: var(--color-muted);
+  font-family: var(--font-ui);
+  font-size: 0.875em;
+  line-height: var(--leading-normal);
+  text-align: center;
+}
+
+/* PC の幅ではコールアウトとコードの内側の余白を広く戻す。
+   64rem は見本の --breakpoint-lg と同じ値（CSS 変数はメディアクエリに書けないため、ここに書く） */
+@media (min-width: 64rem) {
+  .kinari-body pre {
+    padding: calc(var(--spacing) * 5);
+  }
+
+  .kinari-body .callout {
+    padding: calc(var(--spacing) * 4) calc(var(--spacing) * 5);
+  }
+}

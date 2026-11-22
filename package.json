@@ -9,6 +9,8 @@
   },
   "exports": {
     "./markdown": "./src/markdown/index.ts",
+    "./body.css": "./src/styles/body.css",
+    "./mermaid": "./src/mermaid/index.ts",
     "./tokens.css": "./src/styles/tokens.css"
   },
   "files": [
