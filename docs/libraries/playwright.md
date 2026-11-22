@@ -22,11 +22,11 @@
   - レポーター：`list` と `html`（`playwright-report/` に、基準・今回・差分の画像が入る）
 - `expect(page).toHaveScreenshot("<名前>.png")`：画像を撮って基準と比べる
 - `--update-snapshots`：`npm run screenshots` は `changed`（違うものとないものを撮り直す）、`npm run test:visual` は `none`（比べるだけ）
-- `scripts/playwright-docker.mjs`：公式の Docker イメージの中で `npx playwright test` を走らせる。イメージのタグは、入れた `@playwright/test` のバージョンから作る
+- `scripts/playwright-docker.mjs`：公式の Docker イメージに日本語の書体を足したイメージ（`docker/playwright/Dockerfile`）を作り、その中で `npx playwright test` を走らせる。もとのイメージのタグは、入れた `@playwright/test` のバージョンから作る
   - リポジトリをマウントし、`node_modules` と `sample/.next` はフォルダごとの名前つきボリューム（`kinari-md-<フォルダの値>-node_modules`・`-next`）に分ける
   - `package-lock.json` が前回と変わったときだけ、コンテナの中で `npm ci` する
-  - 環境変数 `CI` があるときは、Docker を起動せずにそのまま走らせる
+  - CI でも同じスクリプトで同じイメージを作り、その中で走らせる（環境変数 `CI` はコンテナの中へ渡す）
 
 ## バージョンを上げるとき
 
-`@playwright/test` を上げると、`scripts/playwright-docker.mjs` が使う Docker イメージのタグは自動で変わる。CI の `container:` にタグを直接書いたら、手で同じバージョンに合わせる。ブラウザが変わり画像が少しずれることがあるので、`npm run screenshots` で撮り直して、差分を見てから PR に入れる。
+`@playwright/test` を上げると、`scripts/playwright-docker.mjs` が使う Docker イメージのタグは自動で変わる。CI も同じスクリプトを使うので、タグを手で直すところはない。ブラウザが変わり画像が少しずれることがあるので、`npm run screenshots` で撮り直して、差分を見てから PR に入れる。

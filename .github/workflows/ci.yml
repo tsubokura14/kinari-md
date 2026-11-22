@@ -32,12 +32,8 @@ jobs:
   visual:
     name: 画像を比べるテスト
     runs-on: ubuntu-latest
-    # docs/design.md の「見本のページの画像は、Playwright 公式の Docker イメージで撮って比べる」。タグは入れた @playwright/test と同じ版にする（違うとブラウザが見つからない）
-    # --user 1001 は Playwright 公式の CI の例のとおり。checkout したファイルの持ち主と合わせ、
-    # git の safe.directory や HOME の問題を避ける
-    container:
-      image: mcr.microsoft.com/playwright:v1.65.0-noble
-      options: --user 1001
+    # docs/design.md の「見本のページの画像は、日本語の書体を入れた Playwright のイメージで撮って比べる」。
+    # 手元と同じく scripts/playwright-docker.mjs が docker/playwright/ のイメージを作り、その中で走らせる
     env:
       NEXT_TELEMETRY_DISABLED: 1
     steps:
@@ -45,8 +41,9 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
+          cache: npm
+      # スクリプトが、入れた @playwright/test の版を読んでイメージを作るため
       - run: npm ci
-      # CI 環境変数があるので、scripts/playwright-docker.mjs は Docker を使わずにそのまま走る。
       # CI では基準の画像を更新しない（--update-snapshots=none。撮り直しは手元で行い、PR に入れる）
       - run: npm run test:visual
       # 基準・今回・差分の画像は HTML レポートに入る

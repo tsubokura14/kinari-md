@@ -3,13 +3,11 @@
 Claude が作った Markdown をブラウザで読むアプリのシリーズ（md-leaf、memory-forge）で共有する、Markdown の変換と本文の見た目のパッケージ。
 Markdown の表示を直すときは、アプリではなくこのリポジトリで直す。
 
-いまは土台だけで、変換の中身と本文の見た目はまだない（#2 で md-leaf から移す）。入口は、読み込めることを確かめるための値と、Markdown の色のトークンだけを出している。
-
 ## 主な機能
 
-- Markdown の変換（`kinari-md/markdown`）：GFM、フロントマター、コールアウト、コードの色分け、数式、表、見出しの一覧（#2 から）。サニタイズ（#4 から。書き方を絞る仕組み・コードの行番号と同じ）
-- 本文の見た目（CSS）：見出し・リスト・コード・表・コールアウト・数式。地・文字・差し色などはアプリのトークンを読み、Markdown の表示だけが使う色（`kinari-md/tokens.css`）はライトとダークの2組をこのパッケージが持つ
-- Mermaid の図をブラウザで描く（ライトとダークに合わせる）
+- Markdown の変換（`kinari-md/markdown`）：GFM、フロントマターの題、コールアウト、コードの色分け、数式、表、見出しの一覧、リンクと画像の書き換え（アプリから関数で渡す）。書き方を絞る仕組み・サニタイズ・コードの行番号はまだない（#4）
+- 本文の見た目（`kinari-md/body.css`）：見出し・リスト・コード・表・コールアウト・数式・図・画像。地・文字・差し色などはアプリのトークンを読み、Markdown の表示だけが使う色（`kinari-md/tokens.css`）はライトとダークの2組をこのパッケージが持つ
+- Mermaid の図をブラウザで描く（`kinari-md/mermaid`。ライトとダークに合わせて描き直す）
 - 見本のページ（`sample/`）：変換した Markdown を並べ、ライトとダークを切り替えて見え方を確かめる。パッケージには入らない
 
 ## アプリへの入れ方
@@ -28,17 +26,61 @@ const nextConfig: NextConfig = {
 };
 ```
 
-入口は2つ。
+入口は4つ。
 
 | 入口 | 中身 |
 | --- | --- |
-| `kinari-md/markdown` | Markdown の変換（いまは `packageName` だけ） |
-| `kinari-md/tokens.css` | Markdown の色（コードの色分け・コードの地と行番号・コールアウトの3色）。ライトとダークの2組で、`<html>` の `data-theme` に従う |
+| `kinari-md/markdown` | `renderMarkdown(source, options?)`。Markdown を HTML にし、題・見出しの一覧・切れたリンクと画像の一覧と一緒に返す。サーバーで呼べる |
+| `kinari-md/body.css` | 本文の入れ物 `.kinari-body` の中の見た目（KaTeX の CSS も中で読み込む） |
+| `kinari-md/mermaid` | `drawMermaid(body)`。本文の中の Mermaid の図をブラウザで描く |
+| `kinari-md/tokens.css` | Markdown の色（コードの色分け・コードの地と行番号・コールアウトの3色）と表の列の幅。ライトとダークの2組で、`<html>` の `data-theme` に従う |
+
+本文の CSS は、アプリのトークン（`--color-bg`・`--color-surface`・`--color-text`・`--color-muted`・`--color-border`・`--color-accent`・`--color-info`・`--color-success`・`--color-warning`・`--color-danger`、`--font-body`・`--font-ui`・`--font-mono`、`--spacing`・`--text-sm` など）と、本文の文字の大きさ `--reading-size` を読む。アプリの CSS でこれらを決めてから読み込む。
+
+```css
+/* アプリの globals.css */
+@import "kinari-md/tokens.css";
+@import "kinari-md/body.css";
+```
+
+変換はサーバーの部品で呼べる。相対のリンクと画像は、アプリが関数（`resolve`）を渡して書き換える。渡さなければ書き換えない。
 
 ```ts
-import { packageName } from "kinari-md/markdown";
-import "kinari-md/tokens.css";
+import { renderMarkdown } from "kinari-md/markdown";
+
+const { title, html, headings, brokenLinks, brokenImages } = renderMarkdown(source, {
+  // 相対の href・src ごとに呼ばれる。書き換えないなら undefined を返す
+  resolve: ({ kind, href }) => {
+    if (kind === "link" && href.endsWith(".md")) {
+      const path = `/notes/${href.slice(0, -".md".length)}`;
+      return { href: path, missing: !noteExists(path) }; // missing なら brokenLinks に入る
+    }
+    return undefined;
+  },
+});
+// title：フロントマターの title（なければ undefined）
+// headings：h2・h3 の { id, text, depth }。id は見出しの data-heading の値
+// 書き換えたリンクには data-internal-link が付く
 ```
+
+図は、HTML を入れた本文の入れ物を渡してブラウザで描く。`<html>` の `data-theme` が変わると描き直し、返した関数でやめる。
+
+```tsx
+"use client";
+import { drawMermaid } from "kinari-md/mermaid";
+import { useEffect, useRef } from "react";
+
+export function NoteBody({ html }: { html: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!ref.current) return;
+    return drawMermaid(ref.current);
+  }, [html]);
+  return <div ref={ref} className="kinari-body" dangerouslySetInnerHTML={{ __html: html }} />;
+}
+```
+
+詳しい動きは [docs/specs/markdown.md](docs/specs/markdown.md)。
 
 版を上げたときに変わったところは `CHANGELOG.md` に書く（v0.1.0 から。v0.x のあいだは、壊れる変更も版を上げて入れる）。
 
@@ -63,7 +105,7 @@ import "kinari-md/tokens.css";
 
    `node_modules/kinari-md` に入る。アプリの `package.json` と `package-lock.json` は変わらない。
 
-3. アプリの `next.config.ts` に `transpilePackages: ["kinari-md"]` を足し（まだなければ）、使う場所で `kinari-md/markdown` や `kinari-md/tokens.css` を読み込んで、`next build`（と `tsc --noEmit`）や `next dev` で確かめる
+3. アプリの `next.config.ts` に `transpilePackages: ["kinari-md"]` を足し（まだなければ）、使う場所で入口を読み込んで、`next build`（と `tsc --noEmit`）や `next dev` で確かめる
 
 4. 確かめ終わったら、アプリを元に戻す（アプリにはコミットしない）
    - 足した行を `git checkout` で戻す
@@ -75,9 +117,9 @@ kinari-md をさらに直したときは、1 からやり直す。tgz はコピ�
 ## 使っている技術
 
 - TypeScript（ビルドせずに配り、アプリの Next.js の `transpilePackages` でビルドする）
-- Markdown の変換：unified（remark・rehype）、highlight.js、KaTeX、mermaid（#2 から）
+- Markdown の変換：unified（remark・rehype）、highlight.js、KaTeX、yaml。図：mermaid
 - 見本のページ：Next.js 16（App Router）、React 19、Tailwind CSS 4
-- テスト：Vitest。見本のページの画像を、Playwright の公式の Docker イメージで撮って比べる（ライトとダーク）
+- テスト：Vitest。見本のページの画像を、Playwright の公式の Docker イメージに日本語の書体を入れたイメージで撮って比べる（ライトとダーク、スマホと PC の幅）
 - Lint・整形：ESLint、Prettier
 
 ## セットアップ

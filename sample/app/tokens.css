@@ -86,3 +86,8 @@
 [data-theme="dark"][data-accent="forge"] {
   --c-accent: #b9a0dc;
 }
+
+/* 本文の文字の大きさ（帯の 14px）。既定の 16px は :root */
+[data-size="14"] {
+  --reading-size: 14px;
+}
