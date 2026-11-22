@@ -11,10 +11,13 @@ export const SETTINGS = {
     { value: "leaf", label: "若葉" },
     { value: "forge", label: "江戸紫" },
   ],
-  // 本文の文字の大きさ（--reading-size）。ボタンの文字は値から作る（値は sample/app/tokens.css）
+  // 本文の文字の大きさ（--reading-size。値は sample/app/tokens.css）。
+  // ボタンの文字「14px」「16px」は画面に出す文言で、CSS の値ではないので、px の規則から外す
   size: [
-    { value: "14", label: `${14}px` },
-    { value: "16", label: `${16}px` },
+    // eslint-disable-next-line no-restricted-syntax
+    { value: "14", label: "14px" },
+    // eslint-disable-next-line no-restricted-syntax
+    { value: "16", label: "16px" },
   ],
 } as const;
 
