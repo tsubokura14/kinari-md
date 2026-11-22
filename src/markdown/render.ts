@@ -14,10 +14,17 @@ import { parse as parseYaml } from "yaml";
 import { callouts } from "./callouts";
 import { collectHeadings, type Heading } from "./headings";
 import { highlightCode } from "./highlight";
+import { type Resolve, rewriteLinks } from "./links";
 import { renderMath } from "./math";
 import { wrapTables } from "./tables";
 
 export type { Heading } from "./headings";
+export type { Resolve, ResolveResult, ResolveTarget } from "./links";
+
+export type RenderOptions = {
+  /** 相対のリンク（a の href）と画像（img の src）を書き換える。渡さなければ書き換えない */
+  resolve?: Resolve;
+};
 
 export type RenderedMarkdown = {
   /** フロントマターの `title`。ないときは undefined（ファイル名を使うかは呼ぶ側が決める） */
@@ -25,9 +32,9 @@ export type RenderedMarkdown = {
   html: string;
   /** 本文の h2・h3 の一覧（本文の順） */
   headings: Heading[];
-  /** 行き先がないリンク（書かれたままの形） */
+  /** resolve が行き先がないと答えたリンク（書かれたままの形）。resolve を渡さなければいつも空 */
   brokenLinks: string[];
-  /** 行き先がない画像（書かれたままの形） */
+  /** resolve が行き先がないと答えた画像（書かれたままの形）。resolve を渡さなければいつも空 */
   brokenImages: string[];
 };
 
@@ -109,6 +116,7 @@ const processor = unified()
   .use(remarkBreaks)
   .use(remarkRehype, { handlers: { html: htmlAsText } })
   .use(externalLinksInNewTab)
+  .use(rewriteLinks)
   .use(renderMath)
   .use(highlightCode)
   .use(wrapTables)
@@ -120,8 +128,10 @@ const processor = unified()
   // raw を作る処理を足すときは見直す
   .use(rehypeStringify, { allowDangerousHtml: true });
 
-export function renderMarkdown(source: string): RenderedMarkdown {
-  const file = processor.processSync(new VFile({ value: source }));
+export function renderMarkdown(source: string, options: RenderOptions = {}): RenderedMarkdown {
+  const file = processor.processSync(
+    new VFile({ value: source, data: { resolve: options.resolve } }),
+  );
   const title = file.data.title;
   return {
     title: typeof title === "string" ? title : undefined,
