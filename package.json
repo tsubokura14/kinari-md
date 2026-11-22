@@ -1,6 +1,7 @@
 {
   "name": "kinari-md",
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "license": "MIT",
   "private": true,
   "description": "シリーズのアプリで共有する、Markdown の変換と本文の見た目",
   "repository": {
