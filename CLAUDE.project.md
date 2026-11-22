@@ -10,8 +10,7 @@ AGENTS.md と CLAUDE.md はテンプレートのものなので、このプロ�
 <!-- 立ち上げで決めたら書く。詳しくは docs/overview.md -->
 
 - パッケージ：TypeScript 5.9 のまま配る（ビルドしない）。入口は一番上の `package.json` の `exports`（`kinari-md/markdown` → `src/markdown/index.ts`）、配る中身は `files`（`src/` だけ）。Node.js 24
-  - `src/` はアプリの `tsc` でも型チェックされるので、strict で通る書き方にする
-  - `package.json` に `prepare` などのスクリプトを置かない（GitHub から入れるときに npm が実行するため）
+  - `src/` は strict で通る書き方にする。`package.json` に `prepare` などのスクリプトを置かない（`docs/design.md` の「`src/` は TypeScript のまま配り、アプリがビルドする」）
 - 見本のページ：`sample/` の Next.js 16（App Router）＋ React 19。パッケージには入らない。アプリと同じく `kinari-md/markdown` をパッケージの名前で読み込み（`exports` の自分自身の参照）、`transpilePackages` でビルドする（`sample/next.config.ts`）
   - 型チェックは一番上の `tsconfig.json` でまとめて行う。`sample/tsconfig.json` はそれを `extends` するだけ（Next.js が見本のフォルダで読むため）
 - トークン：`src/styles/tokens.css`（入口 `kinari-md/tokens.css`。Markdown の色と表の列の幅）と、見本だけの `sample/app/tokens.css`。値はこの2つにだけ書く（`docs/design.md`）

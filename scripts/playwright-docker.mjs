@@ -37,7 +37,6 @@ const { version } = JSON.parse(
 const image = `mcr.microsoft.com/playwright:v${version}-noble`;
 
 // node_modules と sample/.next は、フォルダごとの名前つきボリュームに分ける。
-// Windows で入れた node_modules は Linux で動かず、手元の sample/.next とも混ざらないようにするため。
 // worktree で並べても混ざらないよう、名前にフォルダの場所から作った値を入れる
 const id = createHash("sha256").update(root).digest("hex").slice(0, 12);
 const work = "/work";

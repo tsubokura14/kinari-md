@@ -32,7 +32,7 @@ jobs:
   visual:
     name: 画像を比べるテスト
     runs-on: ubuntu-latest
-    # docs/design.md の「画像を撮る仕組み」。タグは入れた @playwright/test と同じ版にする（違うとブラウザが見つからない）
+    # docs/design.md の「見本のページの画像は、Playwright 公式の Docker イメージで撮って比べる」。タグは入れた @playwright/test と同じ版にする（違うとブラウザが見つからない）
     # --user 1001 は Playwright 公式の CI の例のとおり。checkout したファイルの持ち主と合わせ、
     # git の safe.directory や HOME の問題を避ける
     container:

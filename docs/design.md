@@ -47,7 +47,7 @@
 
 - `src/styles/tokens.css`（入口 `kinari-md/tokens.css`）：kinari-md が持つ Markdown の色（`--color-code-*`・`--color-callout-*`）をライト（`:root`）とダーク（`[data-theme="dark"]`）の2組で、表の列の幅（`--table-col-*`）とあわせて持つ。アプリはこれを読み込む
 - `sample/app/tokens.css`：アプリが持つもの（地・文字・差し色・意味の色・書体・文字の段階・角丸・余白、`--reading-size`）を、見本のページでだけ代わりに決める。見本は Markdown の色を、アプリと同じく `kinari-md/tokens.css` から読む（`sample/app/globals.css`）
-- 理由：Markdown の表示だけが使う色はアプリごとに書くとずれるので kinari-md が持ち、地や差し色はアプリの画面全体と揃える必要があるのでアプリが持つ（`docs/ui.md` の「トークン」）
+- 理由：`docs/ui.md` の「トークン」
 - 前提（崩れたら見直す）：アプリが `<html>` に `data-theme` を付け、ダークでは `dark` にする
 - 当てはまる場所：`src/` の CSS と、見本のページ
 

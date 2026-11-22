@@ -8,7 +8,5 @@ export default defineConfig({
       "scripts/**/*.test.{ts,mts,mjs}",
       ".claude/hooks/**/*.test.{ts,mts,mjs}",
     ],
-    // ひな形の段階ではテストのファイルがないため、0 件でも成功にする
-    passWithNoTests: true,
   },
 });
