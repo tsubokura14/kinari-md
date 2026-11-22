@@ -1,8 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { renderMarkdown } from "./render";
 
-// md-leaf の markdown.test.ts から移したもの。コールアウト・コードの色分け・数式・リンクと画像の書き換えの
-// テストは、それぞれを足すタスクで移す
+// md-leaf の markdown.test.ts から移したもの。リンクと画像の書き換えのテストは、links.test.ts に関数を渡す形で移す
 describe("renderMarkdown", () => {
   test("フロントマターを本文から外し、title を返す", () => {
     const result = renderMarkdown("---\ntitle: ノートの入り口\ntags: [a]\n---\n\n本文です。\n");
@@ -72,6 +71,79 @@ describe("renderMarkdown", () => {
     );
   });
 
+  describe("コード", () => {
+    test("言語を書いたコードは、その言語の書き方で色分けする", () => {
+      const result = renderMarkdown('```js\n// 消す\nconst a = "x";\n```\n');
+      expect(result.html).toBe(
+        '<pre><code class="language-js"><span class="hljs-comment">// 消す</span>\n' +
+          '<span class="hljs-keyword">const</span> a = <span class="hljs-string">&quot;x&quot;</span>;\n' +
+          "</code></pre>",
+      );
+    });
+
+    test("色分けしても、コードの中の HTML のタグは文字のまま出す", () => {
+      const result = renderMarkdown('```js\nconst a = "<b>x</b>";\n```\n');
+      expect(result.html).not.toContain("<b>");
+      expect(result.html).toContain("&lt;b&gt;x&lt;/b&gt;");
+    });
+
+    test("言語を書かないコードは、色分けせずに出す", () => {
+      const result = renderMarkdown('```\nconst a = "x";\n```\n');
+      expect(result.html).toBe('<pre><code>const a = "x";\n</code></pre>');
+    });
+
+    test("知らない言語のコードは、色分けせずに出す", () => {
+      const result = renderMarkdown('```nosuchlang\nconst a = "x";\n```\n');
+      expect(result.html).toBe(
+        '<pre><code class="language-nosuchlang">const a = "x";\n</code></pre>',
+      );
+    });
+
+    test("mermaid のコードは、色分けせず、ブラウザで描く印（data-mermaid）を pre に付ける", () => {
+      const result = renderMarkdown("```mermaid\nflowchart LR\n  A --> B\n```\n");
+      expect(result.html).toBe(
+        '<pre data-mermaid=""><code class="language-mermaid">flowchart LR\n  A --> B\n</code></pre>',
+      );
+    });
+    test("文の中のコードは、色分けしない", () => {
+      const result = renderMarkdown('`const a = "x"` を書く\n');
+      expect(result.html).toBe('<p><code>const a = "x"</code> を書く</p>');
+    });
+  });
+
+  describe("数式", () => {
+    test("$...$ は、文の中の数式として KaTeX の式にする", () => {
+      const result = renderMarkdown("時間は $t_i$ と書く\n");
+      expect(result.html).toMatch(/^<p>時間は <span class="katex">[\s\S]*<\/span> と書く<\/p>$/);
+      expect(result.html).not.toContain("katex-display");
+      expect(result.html).not.toContain("$");
+    });
+
+    test("$$...$$ は、本文の中央に置く数式として KaTeX の式にする", () => {
+      const result = renderMarkdown("$$\nT = \\sum_{i=1}^{n} t_i\n$$\n");
+      expect(result.html).toMatch(/^<span class="katex-display">[\s\S]*<\/span>$/);
+      expect(result.html).not.toContain("<pre");
+      expect(result.html).not.toContain("$");
+    });
+
+    test("文の中の数式が式にできないときは、書いたままの文字を出す", () => {
+      const result = renderMarkdown("式は $\\nosuchcommand{x}$ です\n");
+      expect(result.html).toBe(
+        '<p>式は <span class="math-error">$\\nosuchcommand{x}$</span> です</p>',
+      );
+    });
+
+    test("本文の中央に置く数式が式にできないときは、書いたままの文字を出す", () => {
+      const result = renderMarkdown("$$\n\\frac{1}{\n$$\n");
+      expect(result.html).toBe('<div class="math-error">$$\n\\frac{1}{\n$$</div>');
+    });
+
+    test("$ が1つだけのときは、数式にせず文字のまま出す", () => {
+      const result = renderMarkdown("値段は 100$ です\n");
+      expect(result.html).toBe("<p>値段は 100$ です</p>");
+    });
+  });
+
   test("表は、横にスクロールする枠（div.table-scroll）で包み、列の揃えを残す", () => {
     const result = renderMarkdown("| a | b |\n| --- | :-: |\n| 1 | 2 |\n");
     expect(result.html).toMatch(/^<div class="table-scroll"><table>[\s\S]*<\/table><\/div>$/);
@@ -130,10 +202,22 @@ describe("1つの改行（Obsidian と同じく改行にする）", () => {
     );
   });
 
+  test("コールアウトの1行目の次の行は中身になり、中身の1つの改行は <br> になる", () => {
+    const html = renderMarkdown("> [!tip] 題\n> 1行目\n> 2行目\n").html;
+    expect(html).toContain("題");
+    expect(html).toContain("<p>1行目<br>\n2行目</p>");
+    expect(html).not.toMatch(/題<br>/);
+  });
+
   test("コードのブロックの中は変わらない", () => {
     const html = renderMarkdown("```\na\nb\n```\n").html;
     expect(html).not.toContain("<br>");
     expect(html).toContain("a\nb");
+  });
+
+  test("数式のブロックの中は変わらない", () => {
+    const html = renderMarkdown("$$\na\n\\\nb\n$$\n").html;
+    expect(html).not.toContain("<br>");
   });
 });
 

@@ -1,8 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { renderMarkdown } from "./render";
 
-// md-leaf の headings.test.ts から移したもの。コールアウトの中の見出しと、見出しの中の数式のテストは、
-// コールアウトと数式を足すタスクで移す
+// md-leaf の headings.test.ts から移したもの
 describe("見出しの一覧", () => {
   test("h2・h3 を本文の順に、0 からの番号で集め、h1・h4 以下は集めない", () => {
     const { headings } = renderMarkdown(
@@ -33,6 +32,18 @@ describe("見出しの一覧", () => {
     const { headings, html } = renderMarkdown("## ![図](https://example.com/a.png)\n\n## 次\n");
     expect(headings).toEqual([{ id: "0", text: "次", depth: 2 }]);
     expect(html).toMatch(/<h2><img/);
+  });
+
+  test("コールアウト・折りたたみのコールアウトの中の見出しも集める", () => {
+    const { headings, html } = renderMarkdown(
+      "## 前\n\n> [!note]\n> ## 中の見出し\n\n> [!tip]-\n> ### 閉じた中の見出し\n",
+    );
+    expect(headings).toEqual([
+      { id: "0", text: "前", depth: 2 },
+      { id: "1", text: "中の見出し", depth: 2 },
+      { id: "2", text: "閉じた中の見出し", depth: 3 },
+    ]);
+    expect(html).toMatch(/<details[\s\S]*<h3 data-heading="2">閉じた中の見出し<\/h3>/);
   });
 
   test("同じ文字の見出しは、別の番号の見出しにする", () => {
