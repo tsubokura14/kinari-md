@@ -135,11 +135,56 @@ md-leaf と memory-forge は、Markdown の変換と本文の見た目をそれ�
 
 ## 設計
 
-<!--
-変えるファイル、データの変更、やり方を選んだ理由。
-理由と前提には、仕上げたあとに残す場所も書く（そのコードだけに関わるならコメント、複数の場所に関わるなら docs/design.md）。
-docs/design.md と食い違う設計になるなら、そのことも書く
--->
+移す元は md-leaf（`../md-leaf` の `src/lib/markdown.ts` ほか。「調べたこと」）。中身は md-leaf のまま移し、md-leaf だけの部分（ノートの置き場所・URL・`.dark`・`next/navigation`・Tailwind の `@reference`）を、アプリから渡すもの・`data-theme`・普通の CSS に替える。
+
+### 変えるファイル
+
+| 場所 | 中身 |
+| --- | --- |
+| `src/markdown/index.ts` | 入口 `kinari-md/markdown`。`renderMarkdown(source, options?)` と型だけを出す。今の `packageName` は消す |
+| `src/markdown/render.ts` | unified の処理の並び（md-leaf の `markdown.ts`。フロントマター・HTML を文字に・外へのリンク） |
+| `src/markdown/callouts.ts`・`headings.ts`・`highlight.ts`・`math.ts`・`tables.ts` | md-leaf の同じ名前のファイルを移す |
+| `src/markdown/links.ts` | リンクと画像の書き換え（アプリの関数を呼ぶ）と、画像だけの段落の `figure` |
+| `src/markdown/*.test.ts` | md-leaf の `markdown.test.ts`・`callouts.test.ts`・`headings.test.ts` を移す。書き換えのテストは関数を渡す形にする |
+| `src/styles/body.css` | 入口 `kinari-md/body.css`。`.kinari-body` の中の見た目（md-leaf の `note-body.css`）。先頭で `katex/dist/katex.min.css` を読み込む |
+| `src/mermaid/index.ts` | 入口 `kinari-md/mermaid`。`drawMermaid(body: HTMLElement): () => void`（md-leaf の `mermaid.ts` と `note-body-content.tsx` の描く部分） |
+| `package.json` | `exports` に `./body.css`・`./mermaid` を足す。`dependencies` を足す。版 0.1.0、`license: MIT`、`private` を外さない（npm に出さないため） |
+| `LICENSE`・`CHANGELOG.md` | MIT と、v0.1.0 で入ったもの |
+| `sample/app/` | 見本の本文（`sample.md` を移したもの）を、サーバーの部品で `renderMarkdown` して `.kinari-body` に入れる。帯（ライト/ダーク・若葉/江戸紫・14px/16px）、図を描くブラウザの部品 |
+| `e2e/`・`playwright.config.ts` | 見本のページの操作のテストと画像。PC の幅の project を足す |
+| `docker/playwright/Dockerfile`・`docker/playwright/fonts.conf`・`scripts/playwright-docker.mjs`・`.github/workflows/ci.yml` | 日本語の書体を入れたイメージで撮る |
+
+### データ（アプリとの受け渡しの形）
+
+```ts
+type RenderOptions = {
+  /** 相対のリンク（a の href）と画像（img の src）を書き換える。渡さなければ書き換えない */
+  resolve?: (target: { kind: "link" | "image"; href: string }) =>
+    | { href: string; missing?: boolean } // 書き換えたあとの場所と、行き先がないか
+    | undefined; // 書き換えない
+};
+type RenderedMarkdown = {
+  title: string | undefined;
+  html: string;
+  headings: { id: string; text: string; depth: 2 | 3 }[];
+  brokenLinks: string[]; // 書かれたままの形（decodeURI したもの）
+  brokenImages: string[];
+};
+```
+
+- 関数に渡すのは「相対」のもの（スキーム付き・`/` で始まる・`#` で始まるものは渡さない）。`.md` かどうかなどの見分けはアプリがする（ノートの置き場所はアプリごとに違うため。`docs/overview.md`）
+- 書き換えたリンクに `data-internal-link` を付ける（画像には付けない）
+- 見出しの印は md-leaf のまま（`headings.ts` の id と `data-heading`）
+
+### 理由と、残す場所
+
+- 入口を4つに分ける・図を React に頼らない関数にする・関数の形（「AIが決めたこと」）→ `docs/design.md` に「入口の分け方」「アプリから渡す関数の形」を足す
+- ノートの HTML を文字にし、`raw` を作るのは KaTeX と highlight.js だけ → `render.ts` の `rehypeStringify` のコメント（md-leaf のまま）と、`docs/design.md` に前提として1行
+- 本文の CSS は Tailwind に頼らない普通の CSS にする（`@reference`・`@variant` を使わない）。スマホと PC の切り替えは `@media (min-width: 64rem)`（見本の `--breakpoint-lg` と同じ。CSS 変数はメディアクエリに書けないため）。理由：アプリの Tailwind の設定に左右されないため（Markdown の色を普通の CSS 変数で配るのと同じ）→ `docs/design.md` の「Markdown の色は普通の CSS 変数で配る」を本文の CSS にも広げて書く
+- 文字の大きさ：`.kinari-body` の `font-size` を `var(--reading-size)` にし、見出し・コードなどは `em` で倍率をかける → `body.css` のコメント
+- 図の描き直しは `<html>` の `data-theme` の変化を `MutationObserver` で見る → `src/mermaid/index.ts` のコメント
+- 画像を撮るイメージ（「AIが決めたこと」）→ `docs/design.md` の「見本のページの画像は…」を直し、`docs/overview.md` の「技術」のテストの行も直す
+- `docs/design.md` と食い違うところ：画像を撮るイメージだけ（人が「決まっていないこと」で決めた）。ほかは食い違わない
 
 ## AIが決めたこと
 
@@ -161,12 +206,30 @@ decisions スキルの「AIが決めてよいもの」で、AIが選んだもの
 
 ## 確かめ方
 
-<!-- 受け入れ条件ごとに「テスト」「触って確かめる」「コードを見て確かめる」のどれか。選び方は testing スキル -->
-
--
+| 受け入れ条件 | 確かめ方 |
+| --- | --- |
+| 題・HTML・見出しの一覧が返る（題の数・なし・壊れた YAML、h2・h3 の順と印） | テスト（`src/markdown/render.test.ts`・`headings.test.ts`） |
+| 書き方と出し方が md-leaf と同じ（GFM・改行・日本語の強調・コールアウト・コード・数式・表・Mermaid の印・HTML を文字に・外へのリンク） | テスト（md-leaf から移したテスト。`render.test.ts`・`callouts.test.ts`） |
+| リンクと画像の書き換え（書き換えない・渡さない・行き先がない・印・画像だけの段落の alt） | テスト（`src/markdown/links.test.ts`） |
+| 本文の見た目が `docs/ui.md` と合意した画像のとおり | 触って確かめる（見本のページを開く）＋画像を比べるテスト（`docs/specs/screens/sample-*.png`） |
+| 色はトークンだけを読む・値を書かない | コードを見て確かめる（`src/styles/body.css`）＋ `npm run lint`（`scripts/check-tokens.mjs`） |
+| ライト・ダークは `data-theme` だけで変わる | コードを見て確かめる（`body.css` に `data-theme` の書き分けがないこと）＋画像（ライトとダーク） |
+| `--reading-size` で見出し・コードも同じ倍率 | テスト（E2E：14px で h2 とコードの計算後の大きさが 16px のときの 14/16 倍）＋画像（`sample-light-14.png`） |
+| スマホでコールアウト・コードの余白が狭い。横に長いものは枠の中でだけスクロールし、ページは横にスクロールしない | テスト（E2E：スマホの幅で `document.documentElement.scrollWidth` が画面の幅を超えない）＋画像（スマホと PC） |
+| 折りたたみのコールアウトが見出しで開閉する | テスト（E2E） |
+| 図を描く・色（text・surface・accent）・`data-theme` で描き直す・描けない図は元のコードのまま・縮めない | テスト（E2E：図が svg になる、ダークにすると描き直される、壊れた図は pre のまま。見本のページには載せず、E2E の中で壊れた図を含む本文を入れる方法は implementer が決める）＋コードを見て確かめる（`src/mermaid/index.ts` の色の当て方） |
+| 見本のページにノートの見本が出る | 画像を比べるテスト |
+| 帯のボタンで変わる・選んだボタンが差し色の地・URL に残る・その URL で開くと同じ見た目・既定 | テスト（E2E）。選んだボタンの見た目は画像 |
+| 帯と本文が PC で prose の幅で真ん中・帯がスクロールしても上に残る | 画像（PC）＋テスト（E2E：スクロールしたあと帯が画面の上にある） |
+| 4つの入口から読み込める | テスト（見本のページのビルドが `kinari-md/markdown`・`body.css`・`mermaid`・`tokens.css` を読み込む。`npm run build`） |
+| CHANGELOG と版 0.1.0 | コードを見て確かめる（`CHANGELOG.md`・`package.json`） |
 
 ## タスク
 
-<!-- 機能全体で1つのブランチ・1つの PR。タスクはその中のコミットのまとまりで、implementer が1回で作り終えられる、「〜ができたら完了」と1文で言える大きさ。データと画面は分ける。画面のタスクには合わせるスクリーンショットを書く -->
-
-- [ ]
+- [ ] 画像を撮るイメージに日本語の書体を入れる：`docker/playwright/Dockerfile`（`FROM mcr.microsoft.com/playwright:v1.65.0-noble`、`fonts-noto-cjk` を版を固定して入れ、`fonts.conf` で `Noto Serif JP`・`Noto Sans JP` を CJK JP に当てる）を作り、`scripts/playwright-docker.mjs` がそのイメージを作って（名前に Dockerfile と fonts.conf の中身から作った値）中で撮る。CI の画像のジョブも同じスクリプトでイメージを作って撮る。今の基準の画像（`sample-empty-light.png`・`sample-empty-dark.png`）を撮り直し、`npm run test:visual` が通ったら完了
+- [ ] 変換の土台：`dependencies` を入れ、`renderMarkdown` がフロントマターの題・GFM・改行・日本語の強調・HTML を文字に・外へのリンク・表の列の幅・見出しの一覧を返す（`render.ts`・`tables.ts`・`headings.ts`）。md-leaf の該当するテストを移して通ったら完了。見本のページは今の `packageName` の代わりに読み込めるものに直す
+- [ ] コールアウト・コードの色分け・数式・Mermaid の印（`callouts.ts`・`highlight.ts`・`math.ts`）を足し、md-leaf の該当するテストを移して通ったら完了
+- [ ] リンクと画像の書き換え（`links.ts`。`resolve` の関数・`data-internal-link`・切れたリンクと画像の一覧・画像だけの段落の `figure`）を足し、テストが通ったら完了
+- [ ] 本文の CSS（`src/styles/body.css`、入口 `kinari-md/body.css`）と図を描く入口（`src/mermaid/index.ts`、入口 `kinari-md/mermaid`）を作り、`npm run lint`・型チェックが通ったら完了（見た目は次のタスクの画像で合わせる）
+- [ ] 見本のページ：見本の本文（`sample.md`）を本物の変換と本文の CSS・図で出し、帯（ライト/ダーク・若葉/江戸紫・14px/16px、URL の `?theme=`・`accent=`・`size=`、sticky、PC で prose の幅で真ん中）を作る。E2E（帯・URL・折りたたみ・図・文字の大きさ・横のスクロール）が通り、合意した画像 `docs/agreed-screens/sample-light.png`・`sample-dark.png`・`sample-dark-forge.png`・`sample-light-14.png`・`sample-light-pc.png`・`sample-dark-pc.png` のノートの部分に合わせて `docs/specs/screens/` に撮ったら完了。中身のない見本の画像（`sample-empty-*`）とそのテストは消す
+- [ ] 版：`package.json` を 0.1.0・`license: MIT` にし、`LICENSE`・`CHANGELOG.md` を書き、`docs/libraries/` に入れたライブラリの下書きを書いたら完了
