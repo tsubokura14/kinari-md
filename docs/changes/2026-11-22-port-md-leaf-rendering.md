@@ -210,6 +210,9 @@ decisions スキルの「AIが決めてよいもの」で、AIが選んだもの
 - 本文の CSS の文字の倍率は、md-leaf の rem の値をそのまま em にする（h2 は 1.5em、h3 は 1.25em、コード・表・コールアウトの見出し・画像の代わりの文字は 0.875em）。余白は `--spacing` の段階のままで、本文の大きさでは変えない。理由：`--reading-size` が 16px のとき md-leaf と同じ大きさになり、見出しとコードが本文と同じ倍率で変わる。比べた案：トークンの割り算（`calc(var(--text-xl) / var(--text-base) * 1em)`。長さどうしの割り算は使えるブラウザが限られる）
 - 図の字の大きさは md-leaf のまま、画面の部品と同じ `--text-sm`（rem ならルートの字の大きさで px にする）にし、`--reading-size` では変えない。mermaid の設定を作る部分は `src/mermaid/config.ts` に分け、Node のテストで確かめる。理由：図は表と違い、大きさを変えると描き直しが要る（今は `data-theme` の変化だけを見る）。比べた案：本文の大きさに合わせる（`--reading-size` の変化も見て描き直す必要がある）
 - `[data-heading]` の `scroll-margin-top`（md-leaf の上の帯の高さに合わせたもの）は本文の CSS に移さない。理由：帯の高さはアプリが決める。md-leaf が替えるときに自分の CSS で足す
+- 見本のページの帯は、選んだものを `history.replaceState` で URL に書き（履歴を増やさない）、3つとも書く（`?theme=…&accent=…&size=…`）。知らない値は既定にする。最初の描画の前に `<head>` のスクリプトで URL のものを `<html>` の `data-theme`・`data-accent`・`data-size` に映す。理由：ページはビルドのときに既定の見た目で HTML になっているので、映さないと一瞬ライトで出てから変わる。比べた案：`searchParams` を読んでサーバーで組み立てる（`<html>` はレイアウトにあり、ページの `searchParams` が届かない）
+- 見本の本文は `sample/app/note.md` に置き、Turbopack の `type: "raw"` で文字のまま読み込む（`sample/next.config.ts`）。理由：Markdown をそのまま直せ、ファイルの場所（`process.cwd()`）に頼らない。比べた案：`fs` で読む（`next build sample` のときの作業フォルダに頼る）
+- 合意した画像と違うところ（直さない）：スマホの幅の図は、合意した画像では幅に合わせて縮んでいるが、受け入れ条件と `docs/ui.md`（縮めない）に合わせ、枠の中で横にスクロールする。ゴシックの字は、画像を撮るイメージの書体（Noto Sans CJK JP）が合意した画像の書体より幅が広いので、スマホの帯は若葉/江戸紫から2行目に折り返し、表の「コールアウト」が折り返す
 
 ## 確かめ方
 
