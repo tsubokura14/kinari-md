@@ -227,7 +227,7 @@ decisions スキルの「AIが決めてよいもの」で、AIが選んだもの
 
 ## タスク
 
-- [ ] 画像を撮るイメージに日本語の書体を入れる：`docker/playwright/Dockerfile`（`FROM mcr.microsoft.com/playwright:v1.65.0-noble`、`fonts-noto-cjk` を版を固定して入れ、`fonts.conf` で `Noto Serif JP`・`Noto Sans JP` を CJK JP に当てる）を作り、`scripts/playwright-docker.mjs` がそのイメージを作って（名前に Dockerfile と fonts.conf の中身から作った値）中で撮る。CI の画像のジョブも同じスクリプトでイメージを作って撮る。今の基準の画像（`sample-empty-light.png`・`sample-empty-dark.png`）を撮り直し、`npm run test:visual` が通ったら完了
+- [x] 画像を撮るイメージに日本語の書体を入れる：`docker/playwright/Dockerfile`（`FROM mcr.microsoft.com/playwright:v1.65.0-noble`、`fonts-noto-cjk` を版を固定して入れ、`fonts.conf` で `Noto Serif JP`・`Noto Sans JP` を CJK JP に当てる）を作り、`scripts/playwright-docker.mjs` がそのイメージを作って（名前に Dockerfile と fonts.conf の中身から作った値）中で撮る。CI の画像のジョブも同じスクリプトでイメージを作って撮る。今の基準の画像（`sample-empty-light.png`・`sample-empty-dark.png`）を撮り直し、`npm run test:visual` が通ったら完了
 - [ ] 変換の土台：`dependencies` を入れ、`renderMarkdown` がフロントマターの題・GFM・改行・日本語の強調・HTML を文字に・外へのリンク・表の列の幅・見出しの一覧を返す（`render.ts`・`tables.ts`・`headings.ts`）。md-leaf の該当するテストを移して通ったら完了。見本のページは今の `packageName` の代わりに読み込めるものに直す
 - [ ] コールアウト・コードの色分け・数式・Mermaid の印（`callouts.ts`・`highlight.ts`・`math.ts`）を足し、md-leaf の該当するテストを移して通ったら完了
 - [ ] リンクと画像の書き換え（`links.ts`。`resolve` の関数・`data-internal-link`・切れたリンクと画像の一覧・画像だけの段落の `figure`）を足し、テストが通ったら完了
