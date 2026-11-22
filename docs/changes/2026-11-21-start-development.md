@@ -185,4 +185,4 @@ decisions スキルの「AIが決めてよいもの」で、AIが選んだもの
 - [x] 見本のページの帯（画面。合わせるスクリーンショット：`docs/agreed-screens/sample-light.png`・`sample-dark.png` の上の帯のうち、題とライト・ダークのボタンだけ）：切り替えのテスト（`e2e/sample.spec.ts`）を先に書き、帯と切り替えを作り、`sample-empty-light.png`・`sample-empty-dark.png` を撮ったら完了
 - [x] CI：`.github/workflows/ci.yml` を足したら完了
 - [x] 編集したあとのフック：`.claude/hooks/format-on-edit.mjs` とテスト、`.claude/settings.json` の `PostToolUse` を足し、`.claude/rules/testing.md` の `paths:` を直し、Windows で実際に整形されることを確かめたら完了
-- [ ] README：`README.md` に、何か・アプリへの入れ方（GitHub のタグと `transpilePackages`）・手元のアプリで確かめる手順（`npm pack`）・開発コマンドを書いたら完了
+- [x] README：`README.md` に、何か・アプリへの入れ方（GitHub のタグと `transpilePackages`）・手元のアプリで確かめる手順（`npm pack`）・開発コマンドを書いたら完了
