@@ -5,12 +5,16 @@ import remarkBreaks from "remark-breaks";
 import remarkCjkFriendly from "remark-cjk-friendly";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 import { VFile } from "vfile";
 import { parse as parseYaml } from "yaml";
+import { callouts } from "./callouts";
 import { collectHeadings, type Heading } from "./headings";
+import { highlightCode } from "./highlight";
+import { renderMath } from "./math";
 import { wrapTables } from "./tables";
 
 export type { Heading } from "./headings";
@@ -98,17 +102,22 @@ const processor = unified()
   .use(remarkFrontmatter, ["yaml"])
   .use(extractFrontmatter)
   .use(remarkGfm)
-  // 1つの改行を改行にする（Obsidian の既定）。コールアウトの処理を足すときは、その後に置く：コールアウトの
-  // 1行目を文字の中の改行で見つけるので、先に改行を break にすると、1行目の次の行が題に入る
+  .use(remarkMath)
+  .use(callouts)
+  // 1つの改行を改行にする（Obsidian の既定）。callouts の後に置く：callouts.ts はコールアウトの1行目を文字の中の
+  // 改行で見つけるので、先に改行を break にすると、1行目の次の行が題に入る
   .use(remarkBreaks)
   .use(remarkRehype, { handlers: { html: htmlAsText } })
   .use(externalLinksInNewTab)
+  .use(renderMath)
+  .use(highlightCode)
   .use(wrapTables)
   .use(collectHeadings)
   // raw ノード（HTML の文字列）をそのまま出す。本文はアプリが HTML として入れるので、raw に本文の文字が
   // HTML のまま入ると、スクリプトが動く穴になる。
-  // 前提（崩れたら見直す）：raw を作るのは KaTeX と highlight.js の結果だけで、どちらも中の文字を符号化済み。
-  // 本文の HTML のタグは htmlAsText で文字にしてあり、raw にならない。raw を作る処理を足すときは見直す
+  // 前提（崩れたら見直す）：raw を作るのは KaTeX（math.ts）と highlight.js（highlight.ts）の結果だけで、どちらも
+  // 中の文字を符号化済み。本文の HTML のタグは htmlAsText で文字にしてあり、raw にならない。
+  // raw を作る処理を足すときは見直す
   .use(rehypeStringify, { allowDangerousHtml: true });
 
 export function renderMarkdown(source: string): RenderedMarkdown {
