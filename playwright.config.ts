@@ -18,12 +18,11 @@ export default defineConfig({
   projects: [
     {
       name: "mobile",
-      // 幅はスマホ（md-leaf と同じ）。画像は合意した画像と同じく2倍で撮る
+      // 幅はスマホ（md-leaf と同じ）
       testIgnore: /-pc\.spec\.ts$/,
       use: {
         ...devices["Desktop Chrome"],
         viewport: { width: 390, height: 844 },
-        deviceScaleFactor: 2,
         baseURL: `http://localhost:${port}`,
       },
     },

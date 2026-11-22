@@ -43,8 +43,9 @@ export function Toolbar() {
     for (const listener of listeners) listener();
   };
 
+  // ボタンの組は帯（layout.tsx）の並びにそのまま入れ、幅が足りなければ組ごとに折り返す
   return (
-    <div className="flex flex-wrap gap-x-4 gap-y-2">
+    <>
       {SETTING_KEYS.map((key) => (
         <div key={key} className="flex gap-1">
           {SETTINGS[key].map(({ value, label }) => {
@@ -67,6 +68,6 @@ export function Toolbar() {
           })}
         </div>
       ))}
-    </div>
+    </>
   );
 }

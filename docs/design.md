@@ -76,4 +76,5 @@
 - コンテナの中の `node_modules` と `sample/.next` は、フォルダごとの名前つきボリューム（`kinari-md-<フォルダの場所から作った値>-node_modules`・`-next`）に分ける
 - 理由：OS が違うと文字の描き方が変わり、画像が一致しないため。公式のイメージの日本語の書体は Regular だけで明朝もなく、太字と明朝の崩れが画像に出ないため。Windows で入れた `node_modules` は Linux で動かないため
 - 前提（崩れたら見直す）：手元に Docker Desktop があり、CI の実行環境で `docker` が使える。書体の版を上げたら画像を撮り直す。見本のページはデータを取ってこないので、撮る状態はページそのもので作る（状態を足すときは、ここに作り方を書く）
+- 状態の作り方：ライト/ダーク・差し色・文字の大きさは URL（`?theme=dark&accent=forge&size=14`）で開いて作る。PC の幅は `playwright.config.ts` の project `pc`（`*-pc.spec.ts`）で撮る。図は描き終わる（`.mermaid-figure svg` が出る）のを待ってから撮る
 - 当てはまる場所：`e2e/`、`playwright.config.ts`、`scripts/playwright-docker.mjs`、`docker/playwright/`、`.github/workflows/ci.yml`
