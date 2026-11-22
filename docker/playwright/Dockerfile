@@ -14,4 +14,6 @@ RUN apt-get update \
 
 COPY fonts.conf /etc/fonts/local.conf
 # fonts.conf が読めないと、fontconfig は警告だけ出して別名を使わずに進むので、当たっているかをここで確かめる
-RUN fc-cache -f     && fc-match "Noto Serif JP:bold" | grep -q '"Noto Serif CJK JP" "Bold"'     && fc-match "Noto Sans JP:bold" | grep -q '"Noto Sans CJK JP" "Bold"'
+RUN fc-cache -f \
+    && fc-match "Noto Serif JP:bold" | grep -q '"Noto Serif CJK JP" "Bold"' \
+    && fc-match "Noto Sans JP:bold" | grep -q '"Noto Sans CJK JP" "Bold"'

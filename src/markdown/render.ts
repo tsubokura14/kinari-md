@@ -121,11 +121,8 @@ const processor = unified()
   .use(highlightCode)
   .use(wrapTables)
   .use(collectHeadings)
-  // raw ノード（HTML の文字列）をそのまま出す。本文はアプリが HTML として入れるので、raw に本文の文字が
-  // HTML のまま入ると、スクリプトが動く穴になる。
-  // 前提（崩れたら見直す）：raw を作るのは KaTeX（math.ts）と highlight.js（highlight.ts）の結果だけで、どちらも
-  // 中の文字を符号化済み。本文の HTML のタグは htmlAsText で文字にしてあり、raw にならない。
-  // raw を作る処理を足すときは見直す
+  // raw ノード（HTML の文字列）をそのまま出す。raw を作る処理を足すときは、docs/design.md の
+  // 「ノートの HTML は文字にし、raw を作るのは KaTeX と highlight.js だけにする」を見直す
   .use(rehypeStringify, { allowDangerousHtml: true });
 
 export function renderMarkdown(source: string, options: RenderOptions = {}): RenderedMarkdown {

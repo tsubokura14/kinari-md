@@ -312,8 +312,7 @@
   text-align: center;
 }
 
-/* PC の幅ではコールアウトとコードの内側の余白を広く戻す。
-   64rem は見本の --breakpoint-lg と同じ値（CSS 変数はメディアクエリに書けないため、ここに書く） */
+/* PC の幅ではコールアウトとコードの内側の余白を広く戻す（64rem の理由は docs/design.md の「Markdown の色は普通の CSS 変数で配る」） */
 @media (min-width: 64rem) {
   .kinari-body pre {
     padding: calc(var(--spacing) * 5);

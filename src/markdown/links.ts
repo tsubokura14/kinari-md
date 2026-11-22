@@ -56,7 +56,6 @@ function toFigure(image: Element): Element {
  * 相対のリンク（a の href）と画像（img の src）を、アプリの関数（file.data.resolve）で書き換え、
  * 行き先がないものを file.data.brokenLinks・brokenImages に集める。関数がなければ書き換えない。
  * 画像だけの段落は figure にし、代わりの文字を説明に出す（関数の有無にかかわらず）。
- * 関数は呼ぶたびに違うので、processor を作り直さずに file.data で受ける
  */
 export function rewriteLinks() {
   return (tree: HastRoot, file: VFile) => {
