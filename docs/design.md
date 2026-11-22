@@ -7,7 +7,33 @@
 
 ## 全体の構成
 
-<!-- フォルダ構成、層の分け方、どの層に何を書くかと、その理由・前提。立ち上げ（foundation スキル）で書く -->
+| 場所 | 中身 | アプリに入るか |
+| --- | --- | --- |
+| `package.json`（一番上） | パッケージ `kinari-md`。`exports` で入口（`kinari-md/markdown`・`kinari-md/tokens.css`）を決め、`files` で `src/` だけを配る。見本・テストの道具は `devDependencies` | 入る（`files` の中身） |
+| `src/` | パッケージの中身。`src/markdown/`（変換）、`src/styles/`（トークンと本文の CSS） | 入る |
+| `sample/` | 見本のページ（Next.js の App Router。`next dev sample` で動かす） | 入らない |
+| `e2e/` | 見本のページを動かすテストと、画像を比べるテスト（Playwright） | 入らない |
+| `scripts/` | Docker で Playwright を動かす、トークンにない値を見つける、などの道具 | 入らない |
+
+### package.json は一番上の1つだけにする
+
+- 理由：GitHub のタグで入れると、一番上のパッケージしか入らない。見本を別の package.json にすると、npm の workspaces か `file:` のリンクが要り、Turbopack がリンクの先を扱いにくい
+- 前提（崩れたら見直す）：配り方が GitHub のタグのまま（`docs/overview.md`）
+- 当てはまる場所：リポジトリ全体
+
+### `src/` は TypeScript のまま配り、アプリがビルドする
+
+- アプリは `transpilePackages: ["kinari-md"]` でビルドする。アプリの `tsc` も `node_modules/kinari-md/src` を型チェックするので、`src/` は strict で通る書き方にする
+- `package.json` に `prepare` などのスクリプトを置かない。GitHub から入れるとき、npm が `prepare` を見つけると devDependencies まで入れて実行するため
+- 理由：このリポジトリにビルドの手順を持たずに済む
+- 前提（崩れたら見直す）：使うアプリがどれも Next.js で `transpilePackages` を使える
+- 当てはまる場所：`src/`、`package.json`
+
+### 見本のページは、パッケージの名前で読み込む
+
+- `sample/` は `kinari-md/markdown`・`kinari-md/tokens.css` を、`exports` の自分自身の参照（self-reference）で読み込み、`transpilePackages` を通す（`sample/next.config.ts`）。`src/` を相対パスで読まない
+- 理由：アプリと同じ入れ方を見本で先に試せる。`exports` に書き漏れがあると、見本のビルドで気づける
+- 当てはまる場所：`sample/`
 
 ## データ
 
