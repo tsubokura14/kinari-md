@@ -4,7 +4,8 @@
   Tailwind に頼らない普通の CSS（docs/design.md の「Markdown の色は普通の CSS 変数で配る」）。
 
   文字の大きさ：本文は --reading-size。見出し・コード・表などは em で倍率をかけ、本文の大きさと一緒に変わる。
-  倍率は md-leaf の rem の値（h2 は text-xl の 1.5、小さめの字は text-sm の 0.875）を、本文の大きさを 1 として書いたもの。
+  倍率は md-leaf の本文の入れ物での段階（h2 は --text-xl の 1.41、h3 は --text-lg の 1.18、小さめの字は --text-sm の 0.82。
+  どれも本文の大きさ --reading-size にかける倍率）をそのまま書いたもの。
   余白はトークンの段階（--spacing）のままにし、本文の大きさでは変えない
 */
 @import "katex/dist/katex.min.css";
@@ -34,12 +35,12 @@
   margin-top: calc(var(--spacing) * 8);
   padding-bottom: calc(var(--spacing) * 3);
   border-bottom: thin solid var(--color-border);
-  font-size: 1.5em;
+  font-size: 1.41em;
 }
 
 .kinari-body h3 {
   margin-top: calc(var(--spacing) * 6);
-  font-size: 1.25em;
+  font-size: 1.18em;
 }
 
 .kinari-body h4,
@@ -93,7 +94,7 @@
   border-radius: var(--radius-md);
   background: var(--color-code-bg);
   font-family: var(--font-mono);
-  font-size: 0.875em;
+  font-size: 0.82em;
   line-height: var(--leading-normal);
   overflow-wrap: normal;
   white-space: pre;
@@ -107,7 +108,7 @@
   padding: 0 calc(var(--spacing) * 1);
   border-radius: var(--radius-sm);
   background: var(--color-code-bg);
-  font-size: 0.875em;
+  font-size: 0.82em;
 }
 
 /* 色分けは3色だけ。highlight.js の分類を、意味の近い色にまとめる */
@@ -139,7 +140,7 @@
   width: 100%;
   border-collapse: collapse;
   font-family: var(--font-ui);
-  font-size: 0.875em;
+  font-size: 0.82em;
   line-height: var(--leading-normal);
   overflow-wrap: normal;
   line-break: strict;
@@ -250,7 +251,7 @@
   gap: calc(var(--spacing) * 2);
   color: var(--callout-color);
   font-family: var(--font-ui);
-  font-size: 0.875em;
+  font-size: 0.82em;
   font-weight: var(--font-weight-bold);
   line-height: var(--leading-tight);
 }
@@ -307,7 +308,7 @@
   margin-top: calc(var(--spacing) * 2);
   color: var(--color-muted);
   font-family: var(--font-ui);
-  font-size: 0.875em;
+  font-size: 0.82em;
   line-height: var(--leading-normal);
   text-align: center;
 }

@@ -54,7 +54,7 @@
 - アプリは `html` を `.kinari-body` の入れ物に入れ、`kinari-md/tokens.css` と `kinari-md/body.css` を読み込む
 - 色・書体・余白は、アプリのトークン（`--color-bg`・`surface`・`text`・`muted`・`border`・`accent`・`info`・`success`・`warning`・`danger`、`--font-body`・`--font-ui`・`--font-mono`、`--spacing` など）と `kinari-md/tokens.css` を読む。見た目の使い分けは `docs/ui.md`
 - ライト・ダークは `<html data-theme>` だけで変わる
-- 本文の文字の大きさは `--reading-size`。見出し（h2 は 1.5 倍、h3 は 1.25 倍）・コード・表・コールアウトの見出し・画像の代わりの文字（0.875 倍）も同じ倍率で変わる。余白は変わらない
+- 本文の文字の大きさは `--reading-size`。見出し（h2 は 1.41 倍、h3 は 1.18 倍）・コード・表・コールアウトの見出し・画像の代わりの文字（0.82 倍）も同じ倍率で変わる。余白は変わらない
 - 幅が `64rem` より狭いときは、コールアウトとコードの内側の余白が狭くなる
 - コード・表・数式・図は、それぞれの枠の中でだけ横にスクロールし、本文全体は横に広がらない
 
