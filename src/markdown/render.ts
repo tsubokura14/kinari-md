@@ -127,8 +127,8 @@ const allProcessor = unified()
   .use(highlightCode)
   .use(wrapTables)
   .use(collectHeadings)
-  // raw ノード（HTML の文字列）をそのまま出す。raw を作る処理を足すときは、docs/design.md の
-  // 「ノートの HTML は文字にし、raw を作るのは KaTeX と highlight.js だけにする」を見直す
+  // raw ノード（HTML の文字列）をそのまま出す。raw や URL を持つ要素を作る処理を足すときは、
+  // docs/design.md の「安全にする」を見直す
   .use(rehypeStringify, { allowDangerousHtml: true });
 
 // 「コードだけ」で止める読み込み（micromark）の書き方。止めた書き方は読まれないので、書いたままの文字になる。
