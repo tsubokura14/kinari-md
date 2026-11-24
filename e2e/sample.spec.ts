@@ -157,6 +157,35 @@ test("図は svg に描かれ、ダークにすると今の色で描き直され
   await expect(page.getByText(/Syntax error/)).toHaveCount(0);
 });
 
+test("問題文のコードには行番号が出て、選んで写した文字には行番号が入らない", async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.goto("/");
+  const code = page.getByRole("region", { name: "問題" }).locator("pre.line-numbers code");
+  await expect(code).toBeVisible();
+
+  // 行番号は CSS（::before）で出ている
+  const numbers = await code
+    .locator(".code-line")
+    .evaluateAll((lines) => lines.map((line) => getComputedStyle(line, "::before").content));
+  expect(numbers).toHaveLength(3);
+  for (const content of numbers) expect(content).not.toBe("none");
+
+  // コードを全部選んで写す
+  await code.evaluate((element) => {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const selection = window.getSelection()!;
+    selection.removeAllRanges();
+    selection.addRange(range);
+  });
+  await page.keyboard.press("ControlOrMeta+C");
+  const copied = await page.evaluate(() => navigator.clipboard.readText());
+  expect(copied.trimEnd()).toBe("items = [3, 1, 2]\nitems.sort()\nprint(items[0])");
+});
+
 test("ライト・若葉・16px の画像が基準と同じ", async ({ page }) => {
   await page.goto("/");
   await waitForDiagram(page);
