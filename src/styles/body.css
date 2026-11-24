@@ -123,11 +123,18 @@
   text-align: right;
 }
 
+/* 文の中のコード。枠を付けず、文字の色を地に薄く混ぜた地にする（コールアウトや選択肢の箱のように
+   地の色がある場所でも、ライトとダークのどちらでも見分けられるため。トークンを増やさない）。
+   上下の余白は、括弧（sort()・[1, 2, 3]）の上と下のすき間がそろい、文字が箱の真ん中に見える値にする。
+   vertical-align で少し上げ、箱の上下をまわりの日本語の文字の高さにそろえる。
+   上下の余白は、撮る環境（docker/playwright/）の等幅の書体で測って決めた（プロトタイプの書体では
+   上 0.05em・下 0.25em だった）。書体が変わると括弧の位置も変わるので、上下の余白だけを直す */
 .kinari-body :not(pre) > code {
-  padding: 0 calc(var(--spacing) * 1);
+  padding: 0.13em 0.2em 0.17em;
   border-radius: var(--radius-sm);
-  background: var(--color-code-bg);
+  background: color-mix(in srgb, var(--color-text) 9%, var(--color-bg));
   font-size: 0.82em;
+  vertical-align: 0.12em;
 }
 
 /* 色分けは3色だけ。highlight.js の分類を、意味の近い色にまとめる */
@@ -208,6 +215,7 @@
   padding: 0;
   background: none;
   font-size: inherit;
+  vertical-align: baseline;
 }
 
 /* 数式。本文の中央に置く数式は、長ければ数式の中で横にスクロールする（縦のスクロールバーは出さない） */
