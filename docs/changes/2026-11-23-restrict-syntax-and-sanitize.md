@@ -173,6 +173,39 @@ v0.2.0 として出す。
 docs/design.md と食い違う設計になるなら、そのことも書く
 -->
 
+### 変えるファイル
+
+| ファイル | 変えること |
+| --- | --- |
+| `src/markdown/render.ts` | `RenderOptions` に `syntax?: "all" \| "code"` と `lineNumbers?: boolean` を足す。unified の処理を「すべて」と「コードだけ」の2つ作り、`syntax` で選ぶ。`lineNumbers` と書き方は、`resolve` と同じく `VFile` の `data` で渡す |
+| `src/markdown/safe-urls.ts`（新しく作る） | リンクと画像の行き先を決まった形だけ通す rehype の処理。通さない a は中の子に置き換え、通さない img は alt の文字（なければ何も出さない）に置き換える。両方の処理（すべて・コードだけ）で、remark-rehype のすぐ後（`rewriteLinks` より前）に置く |
+| `src/markdown/highlight.ts` | 「コードだけ」では `mermaid` に `data-mermaid` の印を付けない。`lineNumbers` のとき、色分けのあと、コードを行ごとの `span.code-line` に分ける。highlight.js の結果（raw）は、行の終わりで開いている `span` を閉じ、次の行の頭で開き直す（複数行の文字列・コメントでもずれない）。色分けしないコードは、文字のノード（hast）のまま行に分ける（raw を作らない）。`pre` に `line-numbers` のクラスと、行数の桁を `style="--line-digits: N"` で付ける（mermaid のブロックには付けない） |
+| `src/styles/body.css` | 行番号：`pre.line-numbers` で CSS のカウンターを `.code-line::before` に出す（code-line の色、`min-width: calc(var(--line-digits) * 1ch)` で右にそろえ、右に余白）。文の中のコード：地を `color-mix(in srgb, var(--color-text) 9%, var(--color-bg))`、余白を上 0.05em・左右 0.2em・下 0.25em、`vertical-align: 0.12em`。表の中のコードは今までどおり（余白・地・位置を戻す） |
+| `sample/app/page.tsx`、`sample/app/question.ts`（新しく作る）、`sample/app/tokens.css` | ノートのあとに問題の部分を足す。問題文・選択肢・解説の Markdown は `question.ts` に置く。選択肢の箱の地は、見本の `@theme` に `--color-choice: var(--color-code-bg)` を足して `bg-choice` で塗る（Tailwind の任意の値を使わないため。`--color-code-bg` と同じ名前にすると kinari-md の値を上書きするので別の名前） |
+| `e2e/sample.spec.ts` | 問題の部分のテスト（行番号が出る・写すときに入らない） |
+| `package.json`・`CHANGELOG.md` | v0.2.0 |
+| `docs/specs/markdown.md`・`docs/specs/sample-page.md`・`docs/ui.md`・`docs/design.md` | 仕上げで反映する |
+
+### データの変更
+
+保存するデータはない。受け渡しの形だけが変わる。返すもの（`RenderedMarkdown`）の形は変わらない。
+
+```ts
+type RenderOptions = {
+  resolve?: Resolve;
+  syntax?: "all" | "code"; // 既定 "all"
+  lineNumbers?: boolean; // 既定 false
+};
+```
+
+### やり方を選んだ理由
+
+- **「コードだけ」は、読み込み（micromark）の書き方を止めて作る**：remark-parse に `micromarkExtensions` の `disable.null` で、見出し（`headingAtx`・`setextUnderline`）・リスト・引用・区切り線・強調（`attention`）・リンクと画像（`labelStartLink`・`labelStartImage`・`labelEnd`・`definition`）・自動リンク・HTML（`htmlFlow`・`htmlText`）・字下げのコード（`codeIndented`）・文字の参照と `\` の逃がし（`characterReference`・`characterEscape`）を止め、GFM・数式・フロントマター・コールアウトのプラグインは入れない。止めた書き方は読まれないので、書いたままの文字になる。比べた案：すべての書き方で読んでから、絞った外のノードを元の文字に戻す（元の文字の位置を拾い直す処理が要り、入れ子で崩れやすい）。残す場所：`render.ts` のコメント
+- **行の頭の行番号は CSS のカウンター（`::before`）で出す**：生成した文字は選んで写すときに入らない。番号を要素で出して `user-select: none` にする案は、ブラウザによって写すときに入る。残す場所：`body.css` のコメント
+- **桁は `--line-digits` を `pre` に付けて決める**：何桁でもコードの始まりをそろえるのに、ブロックの行数の桁が要る。CSS の `attr()` は幅に使えないため。値は行数でトークンではないので、トークンの決まりに当たらない。残す場所：`highlight.ts` のコメント
+- **安全にする処理は rehype で、`rewriteLinks` より前に置く**：書き換えの関数に危ない行き先が渡らないようにする。行き先を見るときは、ブラウザと同じく先頭の制御文字・空白を除き、タブ・改行を消してからスキームを読む（`java\tscript:`・` javascript:` を見逃さない）。文字の参照（`&#106;avascript:`）は読み込みで戻ってから見るので、同じ決まりで止まる。残す場所：`docs/design.md` の「ノートの HTML は文字にし、raw を作るのは KaTeX と highlight.js だけにする」を直す（前提：新しい要素や属性を出す処理を足したら見直す）
+- **数式のリンク**：KaTeX は `trust` を付けなければ `\href`・`\url` をリンクにしない。今のまま（`math.ts` に `trust` を付けない）で、テストで確かめる
+
 ## AIが決めたこと
 
 - 選ぶものの名前：`renderMarkdown(source, { syntax?: "all" | "code", lineNumbers?: boolean })`。理由：今の `options` に足すだけで、v0.1.x の呼び方がそのまま動く
@@ -180,11 +213,29 @@ docs/design.md と食い違う設計になるなら、そのことも書く
 - 通さないリンクは文字だけ、通さない画像は代わりの文字だけを出す。理由：消すと文が欠け、書いた人が気づけない
 - 「コードだけ」のとき、フロントマターは読まず書いたままの文字にし、`mermaid` は図にしない。理由：問題のデータに題や図はなく、絞った外の書き方と同じ扱いにそろえる
 - 見本の選択肢の箱の見た目は、見本のページの CSS に置く（kinari-md の `body.css` には入れない）。理由：本物の選択肢は memory-forge が持つ（`docs/ui.md` の「見本のページ」）
+- 通す行き先：リンクは相対・`#`・`/`・`http:`・`https:`・`mailto:`、画像は相対・`/`・`http:`・`https:`（受け入れ条件のとおり）。比べた案：通さないものの一覧（`javascript:` など）を持つ（知らないスキームを通してしまう）
+- 「コードだけ」では字下げのコード・文字の参照・`\` の逃がしも止める。理由：「書いたままの文字」にそろえ、memory-forge の今の変換（フェンスのコードしか読まない）と同じにする。比べた案：CommonMark のまま残す（`\*` が `*` になり、書いたものと違う文字が出る。4つの空白で字下げした文がコードになる）
+- 行番号の要素は行ごとの `span.code-line`、`pre` に `line-numbers` のクラス。比べた案：表（`table`）で番号の列を作る（写すときに番号が入り、横のスクロールが番号ごとにならない）
 
 ## 確かめ方
 
--
+| 受け入れ条件 | 確かめ方 |
+| --- | --- |
+| 書き方を絞る（選ばなければ「すべて」で同じ HTML、「コードだけ」で出すもの・文字で出すもの、mermaid、title・headings、resolve を渡せる） | テスト（`src/markdown/render.test.ts`） |
+| 安全にする（危ないリンク・画像、隠したもの、HTML のタグ、数式のリンク、変換が止まらない、どの書き方でも） | テスト（`src/markdown/safe-urls.test.ts`） |
+| 行番号（選べる、すべてのブロック・mermaid と文の中には付けない、複数行の文字列・コメント） | テスト（`src/markdown/highlight.test.ts`） |
+| 行番号を写すときに入らない | テスト（`e2e/sample.spec.ts`。問題文のコードを選んで写した文字に番号がない） |
+| 行番号の見た目（code-line の色、右にそろう、桁がそろう、長い行は横にスクロール） | テスト（画像を比べる）と、コードを見て確かめる（`src/styles/body.css` の行番号） |
+| 文の中のコードの見た目（地・余白・位置、表の中は地なし、コードブロックは変えない、md-leaf にも効く） | テスト（画像を比べる）と、コードを見て確かめる（`src/styles/body.css` の文の中のコード） |
+| 文の中のコードがライトとダークで見分けられる・文字が上下の真ん中に見える | 触って確かめる（見本のページをライトとダークで開き、選択肢の箱とコールアウトの中の `sort()`・`[1, 2, 3]` を見る） |
+| 見本のページの問題の部分・切り替えが効く | テスト（画像を比べる。6つの状態） |
+| v0.2.0 と CHANGELOG | コードを見て確かめる（`package.json`・`CHANGELOG.md`） |
 
 ## タスク
 
-- [ ]
+- [ ] 1. どの書き方でも、危ないリンクと画像を通さず文字で出せる（`safe-urls.ts`・`render.ts`。画面は変わらない）
+- [ ] 2. 「コードだけ」を選ぶと、段落・改行・文の中のコード・コードブロックだけを出せる（`render.ts`・`highlight.ts`）
+- [ ] 3. 行番号を選ぶと、コードブロックに行番号が付き、写すときに入らない見た目で出せる（`highlight.ts`・`body.css` の行番号。見本はまだ使わないので画像は変わらない）
+- [ ] 4. 文の中のコードが、墨を混ぜた地と決めた余白で出る（`body.css`。見本のページの画像6つを撮り直す。合わせるもの：`sample-light.png`・`sample-dark.png` の本文の文の中のコード）
+- [ ] 5. 見本のページに問題の部分（問題文・選択肢 A〜D・解説）が出る（`sample/`・`e2e/`。画像6つを撮り直す。合わせるもの：`sample-light.png`・`sample-dark.png`・`sample-dark-forge.png`・`sample-light-14.png`・`sample-light-pc.png`・`sample-dark-pc.png`）
+- [ ] 6. 版を v0.2.0 にし、`CHANGELOG.md` に入ったものと変わった見た目を書く
