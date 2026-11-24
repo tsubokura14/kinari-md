@@ -1,5 +1,6 @@
 import type { Element, Root as HastRoot } from "hast";
 import hljs from "highlight.js/lib/common";
+import type { VFile } from "vfile";
 
 // 色分けしない言語。mermaid はブラウザで図に描き、math は数式にする
 const notHighlighted = new Set(["mermaid", "math"]);
@@ -20,11 +21,13 @@ function textOf(node: Element): string {
 }
 
 /**
- * `pre > code.language-<言語>` を、highlight.js が知っている言語なら色分けする。mermaid の pre には印を付ける。
+ * `pre > code.language-<言語>` を、highlight.js が知っている言語なら色分けする。mermaid の pre には印を付ける
+ * （書き方が「コードだけ」のときは付けず、色を付けないコードブロックのまま出す）。
  * 結果の HTML（中の文字は highlight.js が符号化済み）を raw ノードとして code の中に入れる
  */
 export function highlightCode() {
-  return (tree: HastRoot) => {
+  return (tree: HastRoot, file: VFile) => {
+    const drawsMermaid = file.data.syntax !== "code";
     const walk = (node: HastRoot | Element) => {
       for (const child of node.children) {
         if (child.type !== "element") continue;
@@ -32,7 +35,7 @@ export function highlightCode() {
         if (child.tagName === "pre" && code?.type === "element" && code.tagName === "code") {
           const language = languageOf(code);
           // Mermaid の図はブラウザで描く（入口 kinari-md/mermaid）。その印を付ける
-          if (language === "mermaid") child.properties.dataMermaid = "";
+          if (language === "mermaid" && drawsMermaid) child.properties.dataMermaid = "";
           if (language && !notHighlighted.has(language) && hljs.getLanguage(language)) {
             const { value } = hljs.highlight(textOf(code), { language, ignoreIllegals: true });
             code.children = [{ type: "raw", value }];

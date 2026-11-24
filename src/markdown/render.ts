@@ -8,7 +8,7 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
-import { unified } from "unified";
+import { type Processor, unified } from "unified";
 import { VFile } from "vfile";
 import { parse as parseYaml } from "yaml";
 import { callouts } from "./callouts";
@@ -25,6 +25,8 @@ export type { Resolve, ResolveResult, ResolveTarget } from "./links";
 export type RenderOptions = {
   /** 相対のリンク（a の href）と画像（img の src）を書き換える。渡さなければ書き換えない */
   resolve?: Resolve;
+  /** 使う書き方。"all"（既定）はすべて、"code" は段落・改行・文の中のコード・コードブロックだけ（ほかは書いたままの文字） */
+  syntax?: "all" | "code";
 };
 
 export type RenderedMarkdown = {
@@ -102,7 +104,7 @@ function externalLinksInNewTab() {
   };
 }
 
-const processor = unified()
+const allProcessor = unified()
   .use(remarkParse)
   // 閉じの強調の直前が日本語の括弧・句読点でも強調にする（Obsidian と同じ読み方）。読み込み（micromark）の拡張なので
   // 読み込みのすぐ後に置く。見出しの中も同じ読み込みを通るので、見出しの一覧（headings.ts）も同じ読み方になる
@@ -127,9 +129,53 @@ const processor = unified()
   // 「ノートの HTML は文字にし、raw を作るのは KaTeX と highlight.js だけにする」を見直す
   .use(rehypeStringify, { allowDangerousHtml: true });
 
+// 「コードだけ」で止める読み込み（micromark）の書き方。止めた書き方は読まれないので、書いたままの文字になる。
+// すべてで読んでから絞った外のノードを元の文字に戻すやり方は、元の文字の位置を拾い直す処理が要り、入れ子で崩れやすい。
+// 字下げのコード・文字の参照・\ の逃がし（行の終わりの \ も）も止める：書いたものと違う文字が出ないようにし、
+// memory-forge の今の変換（フェンスのコードしか読まない）とそろえる。
+// GFM・数式・フロントマター・コールアウトのプラグインは入れない（表・取り消し線・題なども文字のまま）
+const disabledInCode = [
+  "headingAtx",
+  "setextUnderline",
+  "list",
+  "blockQuote",
+  "thematicBreak",
+  "attention",
+  "labelStartLink",
+  "labelStartImage",
+  "labelEnd",
+  "definition",
+  "autolink",
+  "htmlFlow",
+  "htmlText",
+  "codeIndented",
+  "characterReference",
+  "characterEscape",
+  "hardBreakEscape",
+];
+
+function disableSyntax(this: Processor) {
+  const data = this.data();
+  const extensions = (data.micromarkExtensions ??= []);
+  extensions.push({ disable: { null: disabledInCode } });
+}
+
+const codeProcessor = unified()
+  .use(remarkParse)
+  .use(disableSyntax)
+  .use(remarkBreaks)
+  // htmlFlow・htmlText を止めているので html のノードはできないが、すべてと同じ扱いにそろえておく
+  .use(remarkRehype, { handlers: { html: htmlAsText } })
+  .use(safeUrls)
+  .use(rewriteLinks)
+  .use(highlightCode)
+  .use(rehypeStringify, { allowDangerousHtml: true });
+
 export function renderMarkdown(source: string, options: RenderOptions = {}): RenderedMarkdown {
+  const syntax = options.syntax ?? "all";
+  const processor = syntax === "code" ? codeProcessor : allProcessor;
   const file = processor.processSync(
-    new VFile({ value: source, data: { resolve: options.resolve } }),
+    new VFile({ value: source, data: { resolve: options.resolve, syntax } }),
   );
   const title = file.data.title;
   return {
