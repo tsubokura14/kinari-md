@@ -238,5 +238,5 @@ type RenderOptions = {
 - [x] 2. 「コードだけ」を選ぶと、段落・改行・文の中のコード・コードブロックだけを出せる（`render.ts`・`highlight.ts`）
 - [x] 3. 行番号を選ぶと、コードブロックに行番号が付き、写すときに入らない見た目で出せる（`highlight.ts`・`body.css` の行番号。見本はまだ使わないので画像は変わらない）
 - [x] 4. 文の中のコードが、墨を混ぜた地と決めた余白で出る（`body.css`。見本のページの画像6つを撮り直す。合わせるもの：`sample-light.png`・`sample-dark.png` の本文の文の中のコード）
-- [ ] 5. 見本のページに問題の部分（問題文・選択肢 A〜D・解説）が出る（`sample/`・`e2e/`。画像6つを撮り直す。合わせるもの：`sample-light.png`・`sample-dark.png`・`sample-dark-forge.png`・`sample-light-14.png`・`sample-light-pc.png`・`sample-dark-pc.png`）
+- [x] 5. 見本のページに問題の部分（問題文・選択肢 A〜D・解説）が出る（`sample/`・`e2e/`。画像6つを撮り直す。合わせるもの：`sample-light.png`・`sample-dark.png`・`sample-dark-forge.png`・`sample-light-14.png`・`sample-light-pc.png`・`sample-dark-pc.png`）
 - [ ] 6. 版を v0.2.0 にし、`CHANGELOG.md` に入ったものと変わった見た目を書く
