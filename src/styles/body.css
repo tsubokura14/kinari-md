@@ -130,7 +130,7 @@
 .kinari-body :not(pre) > code {
   padding: 0.13em 0.2em 0.17em;
   border-radius: var(--radius-sm);
-  background: color-mix(in srgb, var(--color-text) 9%, var(--color-bg));
+  background: color-mix(in srgb, var(--color-text) 9%, transparent);
   font-size: 0.82em;
   vertical-align: 0.12em;
 }

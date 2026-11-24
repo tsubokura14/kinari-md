@@ -102,7 +102,7 @@ v0.2.0 として出す。
 - スクリーンショットはプロトタイプ（md-leaf の変換で作ったもの）で撮った。文字の倍率は v0.1.1 で直す前のものなので、見出しなどの大きさは今の本番（`docs/specs/screens/`）に合わせる
 
 - 文の中のコード（`docs/ui.md` の「文の中のコード」を直す）。プロトタイプで決めた値：
-  - 地：`color-mix(in srgb, var(--color-text) 9%, var(--color-bg))`。枠なし、角丸は radius-sm。トークンを増やさない（コールアウトの薄い地と同じ作り方）
+  - 地：`color-mix(in srgb, var(--color-text) 9%, transparent)`（文字の色を 9% の濃さで、置かれた場所の地に重ねる）。枠なし、角丸は radius-sm。トークンを増やさない。最初は `var(--color-bg)` に混ぜていたが、PR のあとに見ると、ダークのコールアウトの中でコールアウトの地と近い色になり見分けにくかった。透明に混ぜると、本文の上では同じ色のまま、コールアウトや箱の中ではその地より少し濃くなる
   - 余白：上 0.05em・左右 0.2em・下 0.25em。等幅の書体は括弧が下に伸びるので、上を狭く下を広くして、文字を箱の上下の真ん中に見せる
   - 位置：`vertical-align: 0.12em` で少し上げ、箱を日本語の文字の高さにそろえる
   - 上の値は、プロトタイプ（Windows の等幅の書体）で測って決めた。本番の画像を撮る環境は等幅の書体が違うので、撮り直した画像で、括弧のあるコードの上下のすき間がそろっているかを確かめ、ずれていれば上下の余白だけを直す
@@ -155,7 +155,7 @@ v0.2.0 として出す。
 | デプロイの環境 | なし（見本のページのデプロイの仕方は変わらない） | AI |
 | 新しいライブラリ | なし（Q3 で自前に決めた） | 人（Q3） |
 | 取り消せない操作 | なし | AI |
-| 共通の部品・トークン | 文の中のコードの見た目（`body.css`）を変え、md-leaf の本文にも効く。トークンは増やさない（地は `--color-text` を `--color-bg` に混ぜて作り、角丸は `--radius-sm`。行番号の色 `--color-code-line` もすでにある） | 人（Q5・Q6・Q7） |
+| 共通の部品・トークン | 文の中のコードの見た目（`body.css`）を変え、md-leaf の本文にも効く。トークンは増やさない（地は `--color-text` を透明に混ぜて置かれた場所の地に重ね、角丸は `--radius-sm`。行番号の色 `--color-code-line` もすでにある） | 人（Q5・Q6・Q7） |
 | `docs/design.md` の決まり | 「ノートの HTML は文字にし、raw を作るのは KaTeX と highlight.js だけにする」の前提（「サニタイズ（#4）を入れたら見直す」）を、自前で安全にする形（リンクと画像の行き先を決まった形だけ通す。新しい要素や属性を出す処理を足したら見直す）に直す。「アプリから渡す関数の形」に、選べるもの（書き方・行番号）を足す | 人（Q3） |
 
 ## 調べたこと
@@ -180,7 +180,7 @@ docs/design.md と食い違う設計になるなら、そのことも書く
 | `src/markdown/render.ts` | `RenderOptions` に `syntax?: "all" \| "code"` と `lineNumbers?: boolean` を足す。unified の処理を「すべて」と「コードだけ」の2つ作り、`syntax` で選ぶ。`lineNumbers` と書き方は、`resolve` と同じく `VFile` の `data` で渡す |
 | `src/markdown/safe-urls.ts`（新しく作る） | リンクと画像の行き先を決まった形だけ通す rehype の処理。通さない a は中の子に置き換え、通さない img は alt の文字（なければ何も出さない）に置き換える。両方の処理（すべて・コードだけ）で、remark-rehype のすぐ後（`rewriteLinks` より前）に置く |
 | `src/markdown/highlight.ts` | 「コードだけ」では `mermaid` に `data-mermaid` の印を付けない。`lineNumbers` のとき、色分けのあと、コードを行ごとの `span.code-line` に分ける。highlight.js の結果（raw）は、行の終わりで開いている `span` を閉じ、次の行の頭で開き直す（複数行の文字列・コメントでもずれない）。色分けしないコードは、文字のノード（hast）のまま行に分ける（raw を作らない）。`pre` に `line-numbers` のクラスと、行数の桁を `style="--line-digits: N"` で付ける（mermaid のブロックには付けない） |
-| `src/styles/body.css` | 行番号：`pre.line-numbers` で CSS のカウンターを `.code-line::before` に出す（code-line の色、`min-width: calc(var(--line-digits) * 1ch)` で右にそろえ、右に余白）。文の中のコード：地を `color-mix(in srgb, var(--color-text) 9%, var(--color-bg))`、余白を上 0.05em・左右 0.2em・下 0.25em、`vertical-align: 0.12em`。表の中のコードは今までどおり（余白・地・位置を戻す） |
+| `src/styles/body.css` | 行番号：`pre.line-numbers` で CSS のカウンターを `.code-line::before` に出す（code-line の色、`min-width: calc(var(--line-digits) * 1ch)` で右にそろえ、右に余白）。文の中のコード：地を `color-mix(in srgb, var(--color-text) 9%, transparent)`、余白を上 0.05em・左右 0.2em・下 0.25em、`vertical-align: 0.12em`。表の中のコードは今までどおり（余白・地・位置を戻す） |
 | `sample/app/page.tsx`、`sample/app/question.ts`（新しく作る）、`sample/app/tokens.css` | ノートのあとに問題の部分を足す。問題文・選択肢・解説の Markdown は `question.ts` に置く。選択肢の箱の地は、見本の `@theme` に `--color-choice: var(--color-code-bg)` を足して `bg-choice` で塗る（Tailwind の任意の値を使わないため。`--color-code-bg` と同じ名前にすると kinari-md の値を上書きするので別の名前） |
 | `e2e/sample.spec.ts` | 問題の部分のテスト（行番号が出る・写すときに入らない） |
 | `package.json`・`CHANGELOG.md` | v0.2.0 |
