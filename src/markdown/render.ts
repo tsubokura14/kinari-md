@@ -16,6 +16,7 @@ import { collectHeadings, type Heading } from "./headings";
 import { highlightCode } from "./highlight";
 import { type Resolve, rewriteLinks } from "./links";
 import { renderMath } from "./math";
+import { safeUrls } from "./safe-urls";
 import { wrapTables } from "./tables";
 
 export type { Heading } from "./headings";
@@ -115,6 +116,7 @@ const processor = unified()
   // 改行で見つけるので、先に改行を break にすると、1行目の次の行が題に入る
   .use(remarkBreaks)
   .use(remarkRehype, { handlers: { html: htmlAsText } })
+  .use(safeUrls)
   .use(externalLinksInNewTab)
   .use(rewriteLinks)
   .use(renderMath)
