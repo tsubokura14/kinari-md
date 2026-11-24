@@ -104,11 +104,35 @@
   font-family: var(--font-mono);
 }
 
+/* 行番号（pre.line-numbers と行ごとの .code-line は src/markdown/highlight.ts が付ける）。
+   番号は CSS のカウンターの ::before で出す。生成した文字は選んで写すときに入らないため
+   （番号を要素で出して user-select: none にすると、ブラウザによっては写すときに入る）。
+   幅は行数の桁（--line-digits）で決め、右にそろえて、何桁でもコードの始まりをそろえる。
+   番号は行の中にあるので、長い行は番号ごと枠の中で横にスクロールする */
+.kinari-body pre.line-numbers {
+  counter-reset: code-line;
+}
+
+.kinari-body .code-line::before {
+  display: inline-block;
+  min-width: calc(var(--line-digits) * 1ch);
+  margin-right: calc(var(--spacing) * 4);
+  color: var(--color-code-line);
+  content: counter(code-line);
+  counter-increment: code-line;
+  text-align: right;
+}
+
+/* 文の中のコード（見た目の決まりと理由は docs/ui.md の「文の中のコード」）。
+   上下の余白は、括弧（sort()・[1, 2, 3]）の上と下のすき間がそろう値にし、vertical-align で少し上げる。
+   上下の余白は、撮る環境（docker/playwright/）の等幅の書体で測って決めた（プロトタイプの書体では
+   上 0.05em・下 0.25em だった）。書体が変わると括弧の位置も変わるので、上下の余白だけを直す */
 .kinari-body :not(pre) > code {
-  padding: 0 calc(var(--spacing) * 1);
+  padding: 0.13em 0.2em 0.17em;
   border-radius: var(--radius-sm);
-  background: var(--color-code-bg);
+  background: color-mix(in srgb, var(--color-text) 9%, transparent);
   font-size: 0.82em;
+  vertical-align: 0.12em;
 }
 
 /* 色分けは3色だけ。highlight.js の分類を、意味の近い色にまとめる */
@@ -189,6 +213,7 @@
   padding: 0;
   background: none;
   font-size: inherit;
+  vertical-align: baseline;
 }
 
 /* 数式。本文の中央に置く数式は、長ければ数式の中で横にスクロールする（縦のスクロールバーは出さない） */

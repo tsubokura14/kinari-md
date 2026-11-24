@@ -62,10 +62,14 @@
 
 保存するデータはない。アプリとの受け渡しの形だけを持つ。
 
-### アプリから渡す関数の形（リンクと画像の書き換え）
+### アプリから渡すもの（書き方・行番号・リンクと画像の書き換え）
 
 ```ts
-renderMarkdown(source: string, options?: { resolve?: Resolve }): RenderedMarkdown
+renderMarkdown(source: string, options?: {
+  resolve?: Resolve;
+  syntax?: "all" | "code"; // 既定 "all"。"code" は段落・改行・文の中のコード・コードブロックだけ
+  lineNumbers?: boolean; // 既定 false。その変換のコードブロックすべてに行番号
+}): RenderedMarkdown
 type Resolve = (target: { kind: "link" | "image"; href: string }) =>
   | { href: string; missing?: boolean } // 書き換えたあとの場所と、行き先がないか
   | undefined; // 書き換えない
@@ -80,20 +84,23 @@ type RenderedMarkdown = {
 
 - 関数に渡すのは相対のもの（スキーム付き・`/` で始まる・`#` で始まるものは渡さない）。`href` は HTML に出る形（符号化されたもの。`#`・`?` のあとも含む）。`.md` かどうかなどの見分けはアプリがする
 - 書き換えたリンクには `data-internal-link` を付ける（画像には付けない）。アプリはこの印でアプリの中へのリンクを見分ける
-- 関数は呼ぶたびに違うので、unified の処理は1つだけ作り、関数は `VFile` の `data` で渡す（`src/markdown/render.ts`・`links.ts`）
-- 理由：ノートの置き場所と URL の形はアプリごとに違う（`docs/overview.md`）。切れたリンクの一覧を作るため、書き換えたあとの場所と「行き先がない」を一緒に返す。`href` を符号化された形で渡すのは、md-leaf の今の読み解き（`resolveNoteLink`・`resolveImageSrc`）を変えずに渡せるようにするため
-- 前提（崩れたら見直す）：書き換えるのが a の `href` と img の `src` だけ。ほかの要素（`source` など）を書き換えたくなったら、`kind` を足す
-- 当てはまる場所：`src/markdown/render.ts`・`links.ts`、アプリの呼び出し
+- 関数は呼ぶたびに違うので、unified の処理は書き方ごと（「すべて」と「コードだけ」）に1つずつだけ作り、関数・書き方・行番号は `VFile` の `data` で渡す（`src/markdown/render.ts`・`links.ts`・`highlight.ts`）
+- 書き方は「すべて」と「コードだけ」の2つだけにする。「コードだけ」は読み込み（micromark）の書き方を止めて作るので、止めた書き方は書いたままの文字で出る（`render.ts` のコメント）
+- 理由：書き方は、memory-forge の選択肢（コードだけ）と解説（すべて）に合わせた。ほかの組み合わせは使うアプリがない（`docs/overview.md` の「やらないこと」）。ノートの置き場所と URL の形はアプリごとに違う（`docs/overview.md`）。切れたリンクの一覧を作るため、書き換えたあとの場所と「行き先がない」を一緒に返す。`href` を符号化された形で渡すのは、md-leaf の今の読み解き（`resolveNoteLink`・`resolveImageSrc`）を変えずに渡せるようにするため
+- 前提（崩れたら見直す）：書き換えるのが a の `href` と img の `src` だけ。ほかの要素（`source` など）を書き換えたくなったら、`kind` を足す。書き方の別の組み合わせが要るアプリが出たら、`syntax` の値を足す
+- 当てはまる場所：`src/markdown/render.ts`・`links.ts`・`highlight.ts`、アプリの呼び出し
 
 ## どこでも守る決まり
 
 <!-- 複数のファイルで守る決まり。命名、エラーの扱い、コードの書き方を縛るライブラリの注意など -->
 
-### ノートの HTML は文字にし、raw を作るのは KaTeX と highlight.js だけにする
+### 安全にする（HTML は文字に、raw は KaTeX と highlight.js だけ、行き先は決まった形だけ）
 
-- ノートの中の HTML のタグは、動かさず文字として出す（`render.ts` の `htmlAsText`）。HTML の文字列をそのまま出す raw ノードを作るのは、KaTeX（`math.ts`）と highlight.js（`highlight.ts`）の結果だけにする。`rehype-stringify` は `allowDangerousHtml` で raw をそのまま出す
-- 理由：アプリは返した HTML をそのまま本文に入れるので、ノートの文字が raw に入るとスクリプトが動く穴になる。KaTeX と highlight.js は中の文字を符号化済み
-- 前提（崩れたら見直す）：raw を作る処理を足すときは、中の文字が符号化済みかを確かめる。サニタイズ（#4）を入れたら見直す
+- ノートの中の HTML のタグは、動かさず文字として出す（`render.ts` の `htmlAsText`）。HTML の文字列をそのまま出す raw ノードを作るのは、KaTeX（`math.ts`）と highlight.js（`highlight.ts`。行番号で行に分けるときも、highlight.js の結果を分けるだけ）の結果だけにする。`rehype-stringify` は `allowDangerousHtml` で raw をそのまま出す
+- リンク（a の `href`）は相対・`#`・`/`・`http:`・`https:`・`mailto:`、画像（img の `src`）は相対・`/`・`http:`・`https:` だけを通す。通さないリンクは中の文字だけ、通さない画像は代わりの文字だけにする（`safe-urls.ts`）。remark-rehype のすぐ後、`rewriteLinks` より前に置き、書き換えの関数に危ない行き先を渡さない
+- 安全にするのはいつも行い、呼ぶ側では切れない。KaTeX には `trust` を付けない（`\href`・`\url` をリンクにしない）
+- 理由：アプリは返した HTML をそのまま本文に入れ、memory-forge の問題文はデータベースから来るので、ノートの文字が raw や属性に入るとスクリプトが動く穴になる。KaTeX と highlight.js は中の文字を符号化済み。出す要素と属性を一覧で絞るライブラリ（rehype-sanitize）は使わない（更新が止まっていて、コールアウトのアイコンや `data-*` を一覧に足し続ける手間がある）
+- 前提（崩れたら見直す）：出す要素と属性は、Markdown の書き方とこのパッケージの処理が作るものだけ。raw を作る処理や、URL を持つ新しい要素・属性（`source`・`iframe` など）を出す処理を足すときは、中の文字が符号化済みか・行き先を通す決まりに入るかを確かめる
 - 当てはまる場所：`src/markdown/` の rehype の処理すべて
 
 ### トークンは2つのファイルに分ける

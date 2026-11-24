@@ -3,6 +3,23 @@
 版を上げるたびに、変わったところを書く。v0.x のあいだは、名前を変えるなどの壊れる変更も入る（`docs/overview.md` の「技術」の版の付け方）。
 入れるときは `npm install github:tsubokura14/kinari-md#v<版>`。
 
+## v0.2.0
+
+### 入ったもの
+
+- `kinari-md/markdown`：`renderMarkdown(source, options?)` の `options` に2つ足した。どちらも選ばなければ今までと同じ
+  - `syntax: "all" | "code"`（既定 `"all"`）：`"code"` にすると、段落・改行・文の中のコード・コードブロック（色分けあり）だけを出し、ほかの書き方は書いたままの文字で出す（`mermaid` は図にせず、`title` はいつも `undefined`、`headings` はいつも空）
+  - `lineNumbers: boolean`（既定 `false`）：`true` にすると、その変換のコードブロックすべて（`mermaid` を除く）に、1から始まる行番号を付ける（`pre.line-numbers` と行ごとの `span.code-line`）。番号は CSS で出すので、選んで写すときに入らない
+- `kinari-md/body.css`：行番号の見た目（code-line の色で右にそろえる）
+
+### 変わったもの
+
+- `kinari-md/markdown`：いつも安全にする。リンクの行き先が相対・`#`・`/`・`http:`・`https:`・`mailto:` のどれでもないとき（`javascript:` など）は、リンクにせず文字だけを出す。画像の場所が相対・`/`・`http:`・`https:` のどれでもないときは、画像にせず代わりの文字だけを出す。今まで通っていたこれらのリンクと画像は、出なくなる
+- `kinari-md/body.css`：文の中のコードの見た目を変えた（md-leaf の本文も変わる）
+  - 地：code-bg から、文字の色を 9% の濃さで置かれた場所の地に重ねた色に（コールアウトや箱の中では、その地より少し濃くなる）
+  - 余白：上下 0 → 上 0.13em・下 0.17em、左右 `calc(var(--spacing) * 1)` → 0.2em。`vertical-align: 0.12em` で、箱を日本語の文字の高さにそろえる
+  - 表の中のコードは今までどおり地を付けない
+
 ## v0.1.1
 
 ### 直したもの

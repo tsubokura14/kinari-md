@@ -18,6 +18,9 @@
   --color-warning: var(--c-warning);
   --color-danger: var(--c-danger);
   --color-info: var(--c-info);
+  /* 見本の選択肢の箱の地（bg-choice）。kinari-md の code-bg を読む。
+     --color-code-bg と同じ名前にすると kinari-md/tokens.css の値を上書きするので、別の名前にする */
+  --color-choice: var(--color-code-bg);
 
   --font-body: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
   --font-ui: "Hiragino Sans", "Yu Gothic UI", "Noto Sans JP", system-ui, sans-serif;
