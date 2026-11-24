@@ -100,3 +100,20 @@ describe("ほかの安全にする決まり", () => {
     );
   });
 });
+
+describe("「コードだけ」でも安全にする", () => {
+  test("危ないリンクと HTML のタグは、書いたままの文字で出て、動かない", () => {
+    const result = renderMarkdown(
+      "[ここを押す](javascript:alert(1)) と <script>alert(1)</script> と ![x](javascript:alert(1))\n",
+      { syntax: "code" },
+    );
+    expect(result.html).toBe(
+      "<p>[ここを押す](javascript:alert(1)) と &#x3C;script>alert(1)&#x3C;/script> と ![x](javascript:alert(1))</p>",
+    );
+  });
+
+  test("段落の外の HTML のタグも文字で出す", () => {
+    const result = renderMarkdown("<script>alert(1)</script>\n", { syntax: "code" });
+    expect(result.html).toBe("<p>&#x3C;script>alert(1)&#x3C;/script></p>");
+  });
+});

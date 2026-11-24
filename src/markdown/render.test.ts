@@ -242,3 +242,80 @@ describe("日本語の括弧・句読点の前後の強調", () => {
     expect(result.headings.map((h) => h.text)).toEqual(["CI（継続的インテグレーション）とは"]);
   });
 });
+
+describe("書き方を「コードだけ」に絞る", () => {
+  const code = (source: string) => renderMarkdown(source, { syntax: "code" });
+
+  test("段落・1つの改行・文の中のコードを出す", () => {
+    expect(code("一行目\n`[1, 2, 3]` を返す\n\n次の段落\n").html).toBe(
+      "<p>一行目<br>\n<code>[1, 2, 3]</code> を返す</p>\n<p>次の段落</p>",
+    );
+  });
+
+  test("コードブロックは色分けする", () => {
+    expect(code('```js\nconst a = "x";\n```\n').html).toBe(
+      '<pre><code class="language-js"><span class="hljs-keyword">const</span> a = <span class="hljs-string">&quot;x&quot;</span>;\n' +
+        "</code></pre>",
+    );
+  });
+
+  test.each([
+    ["見出し", "# 1", "# 1"],
+    ["下線の見出し", "題\n===", "題<br>\n==="],
+    ["強調", "**1** と *2* と _3_", "**1** と *2* と _3_"],
+    ["取り消し線", "~~消す~~", "~~消す~~"],
+    ["リンク", "[a](b)", "[a](b)"],
+    ["参照のリンク", "[a][x]\n\n[x]: memo.md", "[a][x]</p>\n<p>[x]: memo.md"],
+    [
+      "自動リンク",
+      "<https://example.com> と https://example.com",
+      "&#x3C;https://example.com> と https://example.com",
+    ],
+    ["画像", "![図](a.png)", "![図](a.png)"],
+    ["数式", "$x^2$", "$x^2$"],
+    ["リスト", "- a\n1. b", "- a<br>\n1. b"],
+    ["タスク", "- [ ] まだ", "- [ ] まだ"],
+    ["引用", "> 引用", "> 引用"],
+    ["コールアウト", "> [!note] 題\n> 中", "> [!note] 題<br>\n> 中"],
+    ["表", "| a | b |\n| - | - |\n| 1 | 2 |", "| a | b |<br>\n| - | - |<br>\n| 1 | 2 |"],
+    ["区切り線", "上\n\n---\n\n***", "上</p>\n<p>---</p>\n<p>***"],
+    ["文字の参照と \ の逃がし", "&amp; \* a\\", "&#x26;amp; \* a\\"],
+  ])("%s は、書いたままの文字で出す", (_name, source, inner) => {
+    expect(code(`${source}\n`).html).toBe(`<p>${inner}</p>`);
+  });
+
+  test("フロントマターは読まず、title はいつも undefined", () => {
+    const result = code("---\ntitle: 題\n---\n\n本文\n");
+    expect(result.title).toBeUndefined();
+    expect(result.html).toContain("title: 題");
+  });
+
+  test("headings はいつも空", () => {
+    expect(code("## 見出し\n").headings).toEqual([]);
+  });
+
+  test("mermaid のコードブロックは、図の印を付けず、色を付けずに出す", () => {
+    expect(code("```mermaid\nflowchart LR\n  A --> B\n```\n").html).toBe(
+      '<pre><code class="language-mermaid">flowchart LR\n  A --> B\n</code></pre>',
+    );
+  });
+
+  test("書き換えの関数を渡せ、リンクと画像がないので呼ばれない", () => {
+    let called = false;
+    const result = renderMarkdown("[a](memo.md) ![b](a.png)\n", {
+      syntax: "code",
+      resolve: () => {
+        called = true;
+        return { href: "/x", missing: true };
+      },
+    });
+    expect(called).toBe(false);
+    expect(result.html).toBe("<p>[a](memo.md) ![b](a.png)</p>");
+    expect(result.brokenLinks).toEqual([]);
+  });
+
+  test("syntax に all を渡すと、選ばないときと同じ HTML になる", () => {
+    const source = "## 見出し\n\n**太字** `x`\n";
+    expect(renderMarkdown(source, { syntax: "all" })).toEqual(renderMarkdown(source));
+  });
+});
