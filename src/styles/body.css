@@ -104,6 +104,25 @@
   font-family: var(--font-mono);
 }
 
+/* 行番号（pre.line-numbers と行ごとの .code-line は src/markdown/highlight.ts が付ける）。
+   番号は CSS のカウンターの ::before で出す。生成した文字は選んで写すときに入らないため
+   （番号を要素で出して user-select: none にすると、ブラウザによっては写すときに入る）。
+   幅は行数の桁（--line-digits）で決め、右にそろえて、何桁でもコードの始まりをそろえる。
+   番号は行の中にあるので、長い行は番号ごと枠の中で横にスクロールする */
+.kinari-body pre.line-numbers {
+  counter-reset: code-line;
+}
+
+.kinari-body .code-line::before {
+  display: inline-block;
+  min-width: calc(var(--line-digits) * 1ch);
+  margin-right: calc(var(--spacing) * 4);
+  color: var(--color-code-line);
+  content: counter(code-line);
+  counter-increment: code-line;
+  text-align: right;
+}
+
 .kinari-body :not(pre) > code {
   padding: 0 calc(var(--spacing) * 1);
   border-radius: var(--radius-sm);

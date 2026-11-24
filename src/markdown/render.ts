@@ -27,6 +27,8 @@ export type RenderOptions = {
   resolve?: Resolve;
   /** 使う書き方。"all"（既定）はすべて、"code" は段落・改行・文の中のコード・コードブロックだけ（ほかは書いたままの文字） */
   syntax?: "all" | "code";
+  /** true なら、コードブロック（mermaid を除く）すべてに 1 から始まる行番号を付ける。既定は付けない */
+  lineNumbers?: boolean;
 };
 
 export type RenderedMarkdown = {
@@ -175,7 +177,10 @@ export function renderMarkdown(source: string, options: RenderOptions = {}): Ren
   const syntax = options.syntax ?? "all";
   const processor = syntax === "code" ? codeProcessor : allProcessor;
   const file = processor.processSync(
-    new VFile({ value: source, data: { resolve: options.resolve, syntax } }),
+    new VFile({
+      value: source,
+      data: { resolve: options.resolve, syntax, lineNumbers: options.lineNumbers ?? false },
+    }),
   );
   const title = file.data.title;
   return {
