@@ -132,13 +132,17 @@ test("図は svg に描かれ、ダークにすると今の色で描き直され
   const firstId = await svg.getAttribute("id");
 
   // 見本の本文には描けない図を載せないので、ここで本文の先頭に入れる（描き直しは先頭から順に進む）
-  await page.locator(".kinari-body").evaluate((body) => {
-    const pre = document.createElement("pre");
-    pre.dataset.mermaid = "";
-    pre.className = "broken-diagram";
-    pre.textContent = "flowchart LR\n  A[開く --> ";
-    body.prepend(pre);
-  });
+  // 本文の入れ物は問題の部分にもあるので、先頭（ノートの本文）に入れる
+  await page
+    .locator(".kinari-body")
+    .first()
+    .evaluate((body) => {
+      const pre = document.createElement("pre");
+      pre.dataset.mermaid = "";
+      pre.className = "broken-diagram";
+      pre.textContent = "flowchart LR\n  A[開く --> ";
+      body.prepend(pre);
+    });
 
   await clickWhenHydrated(button(page, "ダーク"));
   await expect(svg).not.toHaveAttribute("id", firstId ?? "");
