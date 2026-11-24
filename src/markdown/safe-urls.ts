@@ -52,7 +52,7 @@ function replacement(element: Element): ElementContent[] | undefined {
 /**
  * リンク（a の href）と画像（img の src）の行き先を決まった形だけ通す。通さないリンクは中の文字に、
  * 通さない画像は代わりの文字（なければ何も出さない）に置き換える。
- * 書き換えの関数（links.ts）に危ない行き先を渡さないよう、remark-rehype のすぐ後に置く
+ * 置く場所は docs/design.md の「安全にする」
  */
 export function safeUrls() {
   return (tree: HastRoot) => {
